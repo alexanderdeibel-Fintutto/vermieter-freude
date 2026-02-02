@@ -9,7 +9,8 @@ import {
   MessageSquare, 
   Settings,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  CreditCard
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,6 +43,7 @@ const navigationItems = [
   { title: "Abrechnungen", url: "/billing", icon: Receipt },
   { title: "Steuern", url: "/taxes", icon: Calculator },
   { title: "Kommunikation", url: "/communication", icon: MessageSquare },
+  { title: "Preise", url: "/pricing", icon: CreditCard },
 ];
 
 export function AppSidebar() {
