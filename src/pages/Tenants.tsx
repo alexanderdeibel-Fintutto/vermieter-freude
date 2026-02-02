@@ -12,6 +12,8 @@ import { Users, Plus, Search, Mail, Phone, Home, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { tenantSchema } from "@/lib/validationSchemas";
+import { sanitizeErrorMessage } from "@/lib/errorHandler";
 
 interface Tenant {
   id: string;
@@ -75,18 +77,32 @@ export default function Tenants() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Validate input data
+    const validationResult = tenantSchema.safeParse(newTenant);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        title: "Validierungsfehler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      const validatedData = validationResult.data;
       const { error } = await supabase
         .from('tenants')
         .insert({
           organization_id: profile?.organization_id,
-          first_name: newTenant.first_name,
-          last_name: newTenant.last_name,
-          email: newTenant.email || null,
-          phone: newTenant.phone || null,
-          address: newTenant.address || null,
-          city: newTenant.city || null,
-          postal_code: newTenant.postal_code || null,
+          first_name: validatedData.first_name,
+          last_name: validatedData.last_name,
+          email: validatedData.email || null,
+          phone: validatedData.phone || null,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postal_code: validatedData.postal_code || null,
         });
 
       if (error) throw error;
@@ -107,10 +123,10 @@ export default function Tenants() {
         postal_code: "",
       });
       fetchTenants();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Fehler",
-        description: error.message || "Der Mieter konnte nicht angelegt werden.",
+        description: sanitizeErrorMessage(error),
         variant: "destructive",
       });
     } finally {

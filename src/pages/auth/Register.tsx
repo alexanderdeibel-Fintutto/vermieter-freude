@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Building2, Loader2, CheckCircle } from "lucide-react";
+import { registrationSchema } from "@/lib/validationSchemas";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -24,13 +25,18 @@ export default function Register() {
     e.preventDefault();
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Die Passwörter stimmen nicht überein.");
-      return;
-    }
+    // Validate all input data
+    const validationResult = registrationSchema.safeParse({
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+    });
 
-    if (password.length < 6) {
-      setError("Das Passwort muss mindestens 6 Zeichen lang sein.");
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      setError(firstError.message);
       return;
     }
 
@@ -137,11 +143,11 @@ export default function Register() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Mindestens 6 Zeichen"
+                  placeholder="Min. 8 Zeichen, Groß-/Kleinbuchstabe, Zahl"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
               <div className="space-y-2">

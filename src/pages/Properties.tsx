@@ -11,7 +11,8 @@ import { Building2, Plus, MapPin, Home, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-
+import { buildingSchema, BuildingFormData } from "@/lib/validationSchemas";
+import { sanitizeErrorMessage } from "@/lib/errorHandler";
 interface Building {
   id: string;
   name: string;
@@ -96,18 +97,32 @@ export default function Properties() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Validate input data
+    const validationResult = buildingSchema.safeParse(newBuilding);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        title: "Validierungsfehler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      const validatedData = validationResult.data;
       const { error } = await supabase
         .from('buildings')
         .insert({
           organization_id: profile?.organization_id,
-          name: newBuilding.name,
-          address: newBuilding.address,
-          city: newBuilding.city,
-          postal_code: newBuilding.postal_code,
-          building_type: newBuilding.building_type as any,
-          year_built: newBuilding.year_built ? parseInt(newBuilding.year_built) : null,
-          total_area: newBuilding.total_area ? parseFloat(newBuilding.total_area) : null,
+          name: validatedData.name,
+          address: validatedData.address,
+          city: validatedData.city,
+          postal_code: validatedData.postal_code,
+          building_type: validatedData.building_type as any,
+          year_built: validatedData.year_built ? parseInt(validatedData.year_built) : null,
+          total_area: validatedData.total_area ? parseFloat(validatedData.total_area) : null,
         });
 
       if (error) throw error;
@@ -128,10 +143,10 @@ export default function Properties() {
         total_area: "",
       });
       fetchBuildings();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Fehler",
-        description: error.message || "Das Gebäude konnte nicht angelegt werden.",
+        description: sanitizeErrorMessage(error),
         variant: "destructive",
       });
     } finally {

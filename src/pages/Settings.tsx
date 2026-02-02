@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { profileSchema, organizationSchema } from "@/lib/validationSchemas";
+import { sanitizeErrorMessage } from "@/lib/errorHandler";
 
 interface Organization {
   id: string;
@@ -77,13 +79,30 @@ export default function Settings() {
   };
 
   const handleSaveProfile = async () => {
+    // Validate input data
+    const validationResult = profileSchema.safeParse({
+      first_name: firstName,
+      last_name: lastName,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        title: "Validierungsfehler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
+      const validatedData = validationResult.data;
       const { error } = await supabase
         .from('profiles')
         .update({
-          first_name: firstName,
-          last_name: lastName,
+          first_name: validatedData.first_name,
+          last_name: validatedData.last_name,
         })
         .eq('user_id', user?.id);
 
@@ -94,10 +113,10 @@ export default function Settings() {
         title: "Erfolg",
         description: "Ihr Profil wurde aktualisiert.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Fehler",
-        description: error.message || "Das Profil konnte nicht gespeichert werden.",
+        description: sanitizeErrorMessage(error),
         variant: "destructive",
       });
     } finally {
@@ -106,17 +125,38 @@ export default function Settings() {
   };
 
   const handleSaveOrganization = async () => {
+    // Validate input data
+    const validationResult = organizationSchema.safeParse({
+      name: orgName,
+      address: orgAddress,
+      city: orgCity,
+      postal_code: orgPostalCode,
+      phone: orgPhone,
+      email: orgEmail,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast({
+        title: "Validierungsfehler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
+      const validatedData = validationResult.data;
       const { error } = await supabase
         .from('organizations')
         .update({
-          name: orgName,
-          address: orgAddress || null,
-          city: orgCity || null,
-          postal_code: orgPostalCode || null,
-          phone: orgPhone || null,
-          email: orgEmail || null,
+          name: validatedData.name,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postal_code: validatedData.postal_code || null,
+          phone: validatedData.phone || null,
+          email: validatedData.email || null,
         })
         .eq('id', organization?.id);
 
@@ -126,10 +166,10 @@ export default function Settings() {
         title: "Erfolg",
         description: "Die Organisation wurde aktualisiert.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Fehler",
-        description: error.message || "Die Organisation konnte nicht gespeichert werden.",
+        description: sanitizeErrorMessage(error),
         variant: "destructive",
       });
     } finally {
