@@ -96,6 +96,9 @@ export default function Login() {
                   Jetzt registrieren
                 </Link>
               </p>
+              <Link to="/pricing" className="text-sm text-muted-foreground hover:text-primary hover:underline">
+                Preise ansehen →
+              </Link>
             </CardFooter>
           </form>
         </Card>
