@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Building2, Loader2 } from "lucide-react";
+import { organizationSchema } from "@/lib/validationSchemas";
+import { sanitizeErrorMessage } from "@/lib/errorHandler";
 
 export default function OrganizationSetup() {
   const [name, setName] = useState("");
@@ -27,17 +29,36 @@ export default function OrganizationSetup() {
     setError(null);
     setIsLoading(true);
 
+    // Validate input data
+    const validationResult = organizationSchema.safeParse({
+      name,
+      address,
+      city,
+      postal_code: postalCode,
+      phone,
+      email,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      setError(firstError.message);
+      setIsLoading(false);
+      return;
+    }
+
     try {
+      const validatedData = validationResult.data;
+      
       // Create organization
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert({
-          name,
-          address: address || null,
-          city: city || null,
-          postal_code: postalCode || null,
-          phone: phone || null,
-          email: email || null,
+          name: validatedData.name,
+          address: validatedData.address || null,
+          city: validatedData.city || null,
+          postal_code: validatedData.postal_code || null,
+          phone: validatedData.phone || null,
+          email: validatedData.email || null,
         })
         .select()
         .single();
@@ -66,8 +87,8 @@ export default function OrganizationSetup() {
       await refreshProfile();
 
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.");
+    } catch (err: unknown) {
+      setError(sanitizeErrorMessage(err));
       setIsLoading(false);
     }
   };
