@@ -1,0 +1,416 @@
+// ===========================================
+// Address Type
+// ===========================================
+
+export interface Address {
+  street: string;
+  zip: string;
+  city: string;
+  country: string;
+}
+
+// ===========================================
+// Building Types
+// ===========================================
+
+export interface Building {
+  id: string;
+  organization_id: string;
+  name: string;
+  address: Address;
+  image_url?: string;
+  total_units: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BuildingInsert extends Omit<Building, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface BuildingUpdate extends Partial<BuildingInsert> {}
+
+// ===========================================
+// Unit Types
+// ===========================================
+
+export type UnitStatus = 'available' | 'rented' | 'maintenance';
+
+export interface Unit {
+  id: string;
+  building_id: string;
+  name: string;
+  floor?: number;
+  size_sqm?: number;
+  rooms?: number;
+  rent_cold: number; // in Cents
+  rent_warm?: number; // in Cents
+  status: UnitStatus;
+  current_tenant_id?: string;
+  created_at: string;
+}
+
+export interface UnitInsert extends Omit<Unit, 'id' | 'created_at'> {
+  id?: string;
+  created_at?: string;
+}
+
+export interface UnitUpdate extends Partial<UnitInsert> {}
+
+// ===========================================
+// Tenant Types
+// ===========================================
+
+export interface Tenant {
+  id: string;
+  organization_id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TenantInsert extends Omit<Tenant, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TenantUpdate extends Partial<TenantInsert> {}
+
+// ===========================================
+// Lease Contract Types
+// ===========================================
+
+export type LeaseStatus = 'draft' | 'active' | 'terminated' | 'expired';
+
+export interface LeaseContract {
+  id: string;
+  unit_id: string;
+  tenant_id: string;
+  start_date: string;
+  end_date?: string;
+  rent_amount: number; // in Cents
+  deposit_amount: number; // in Cents
+  deposit_paid: boolean;
+  status: LeaseStatus;
+  created_at: string;
+}
+
+export interface LeaseContractInsert extends Omit<LeaseContract, 'id' | 'created_at'> {
+  id?: string;
+  created_at?: string;
+}
+
+export interface LeaseContractUpdate extends Partial<LeaseContractInsert> {}
+
+// ===========================================
+// Task Types
+// ===========================================
+
+export type TaskCategory = 'damage' | 'maintenance' | 'request' | 'other';
+export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent';
+export type TaskStatus = 'open' | 'in_progress' | 'completed' | 'cancelled';
+export type TaskSource = 'tenant' | 'landlord' | 'caretaker' | 'system';
+
+export interface Task {
+  id: string;
+  organization_id: string;
+  building_id?: string;
+  unit_id?: string;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+  priority: TaskPriority;
+  status: TaskStatus;
+  created_by: string;
+  assigned_to?: string;
+  source: TaskSource;
+  due_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskInsert extends Omit<Task, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TaskUpdate extends Partial<TaskInsert> {}
+
+export interface TaskAttachment {
+  id: string;
+  task_id: string;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+}
+
+// ===========================================
+// Meter Types
+// ===========================================
+
+export type MeterType = 'electricity' | 'gas' | 'water' | 'heating';
+
+export interface Meter {
+  id: string;
+  unit_id: string;
+  meter_number: string;
+  type: MeterType;
+  installation_date?: string;
+  last_reading_date?: string;
+  last_reading_value?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MeterInsert extends Omit<Meter, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface MeterUpdate extends Partial<MeterInsert> {}
+
+// ===========================================
+// Meter Reading Types
+// ===========================================
+
+export interface MeterReading {
+  id: string;
+  meter_id: string;
+  reading_date: string;
+  value: number;
+  image_url?: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface MeterReadingInsert extends Omit<MeterReading, 'id' | 'created_at'> {
+  id?: string;
+  created_at?: string;
+}
+
+export interface MeterReadingUpdate extends Partial<MeterReadingInsert> {}
+
+// ===========================================
+// Operating Cost Statement Types
+// ===========================================
+
+export type OperatingCostStatus = 'draft' | 'calculated' | 'sent' | 'completed';
+
+export interface OperatingCostStatement {
+  id: string;
+  building_id: string;
+  period_start: string;
+  period_end: string;
+  status: OperatingCostStatus;
+  total_costs: number; // in Cents
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OperatingCostStatementInsert extends Omit<OperatingCostStatement, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OperatingCostStatementUpdate extends Partial<OperatingCostStatementInsert> {}
+
+// ===========================================
+// Operating Cost Line Item Types
+// ===========================================
+
+export type DistributionKey = 'area' | 'units' | 'persons' | 'consumption';
+
+export interface OperatingCostLineItem {
+  id: string;
+  statement_id: string;
+  cost_type: string;
+  description?: string;
+  amount: number; // in Cents
+  distribution_key: DistributionKey;
+  created_at: string;
+}
+
+// ===========================================
+// Payment Types
+// ===========================================
+
+export type PaymentType = 'rent' | 'deposit' | 'utility' | 'other';
+export type PaymentStatus = 'pending' | 'paid' | 'overdue' | 'cancelled';
+
+export interface Payment {
+  id: string;
+  organization_id: string;
+  lease_id: string;
+  tenant_id: string;
+  amount: number; // in Cents
+  due_date: string;
+  paid_date?: string;
+  payment_type: PaymentType;
+  status: PaymentStatus;
+  reference?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentInsert extends Omit<Payment, 'id' | 'created_at' | 'updated_at'> {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PaymentUpdate extends Partial<PaymentInsert> {}
+
+// ===========================================
+// Helper Types (Joined/Extended)
+// ===========================================
+
+export interface BuildingWithUnits extends Building {
+  units: Unit[];
+}
+
+export interface UnitWithTenant extends Unit {
+  tenant?: Tenant;
+  building?: Building;
+}
+
+export interface UnitWithLease extends Unit {
+  lease?: LeaseContract;
+  tenant?: Tenant;
+}
+
+export interface TaskWithAttachments extends Task {
+  attachments: TaskAttachment[];
+  building?: Building;
+  unit?: Unit;
+}
+
+export interface LeaseContractWithDetails extends LeaseContract {
+  tenant: Tenant;
+  unit: Unit;
+  building?: Building;
+}
+
+export interface MeterWithReadings extends Meter {
+  readings: MeterReading[];
+  unit?: Unit;
+}
+
+export interface OperatingCostStatementWithItems extends OperatingCostStatement {
+  line_items: OperatingCostLineItem[];
+  building?: Building;
+}
+
+export interface TenantWithLeases extends Tenant {
+  leases: LeaseContract[];
+  current_unit?: Unit;
+}
+
+// ===========================================
+// Dashboard/Statistics Types
+// ===========================================
+
+export interface DashboardStats {
+  total_buildings: number;
+  total_units: number;
+  occupied_units: number;
+  vacant_units: number;
+  total_tenants: number;
+  total_monthly_rent: number; // in Cents
+  overdue_payments: number;
+  open_tasks: number;
+}
+
+export interface OccupancyStats {
+  total: number;
+  occupied: number;
+  vacant: number;
+  maintenance: number;
+  occupancy_rate: number; // percentage
+}
+
+export interface FinancialSummary {
+  period: string;
+  total_income: number;
+  total_expenses: number;
+  net_income: number;
+  pending_payments: number;
+}
+
+// ===========================================
+// Form Types (for UI components)
+// ===========================================
+
+export interface BuildingFormData {
+  name: string;
+  street: string;
+  zip: string;
+  city: string;
+  country: string;
+  image_url?: string;
+}
+
+export interface UnitFormData {
+  building_id: string;
+  name: string;
+  floor?: number;
+  size_sqm?: number;
+  rooms?: number;
+  rent_cold: number;
+  rent_warm?: number;
+  status: UnitStatus;
+}
+
+export interface TenantFormData {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  notes?: string;
+}
+
+export interface LeaseFormData {
+  unit_id: string;
+  tenant_id: string;
+  start_date: string;
+  end_date?: string;
+  rent_amount: number;
+  deposit_amount: number;
+  deposit_paid: boolean;
+}
+
+export interface TaskFormData {
+  building_id?: string;
+  unit_id?: string;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+  priority: TaskPriority;
+  assigned_to?: string;
+  due_date?: string;
+}
+
+export interface MeterReadingFormData {
+  meter_id: string;
+  reading_date: string;
+  value: number;
+  image_url?: string;
+}
