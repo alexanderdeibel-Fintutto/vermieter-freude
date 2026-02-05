@@ -36,6 +36,7 @@ import NewContract from "./pages/contracts/NewContract";
 import PaymentList from "./pages/payments/PaymentList";
 import OperatingCosts from "./pages/operating-costs/OperatingCosts";
 import NewBilling from "./pages/operating-costs/NewBilling";
+import OperatingCostDetail from "./pages/operating-costs/OperatingCostDetail";
 import MeterDashboard from "./pages/meters/MeterDashboard";
 import MeterDetail from "./pages/meters/MeterDetail";
 import TaskList from "./pages/tasks/TaskList";
@@ -127,6 +128,11 @@ const App = () => (
             <Route path="/betriebskosten/neu" element={
               <ProtectedRoute>
                 <NewBilling />
+              </ProtectedRoute>
+            } />
+            <Route path="/betriebskosten/:id" element={
+              <ProtectedRoute>
+                <OperatingCostDetail />
               </ProtectedRoute>
             } />
             <Route path="/zaehler" element={
