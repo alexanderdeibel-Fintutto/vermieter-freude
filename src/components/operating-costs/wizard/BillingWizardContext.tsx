@@ -1,5 +1,23 @@
  import { createContext, useContext, useState, useEffect, ReactNode } from "react";
  
+export interface MeterConsumptionData {
+  meterId: string;
+  meterNumber: string;
+  meterType: "electricity" | "gas" | "water" | "heating";
+  unitId: string;
+  unitNumber: string;
+  startReadingId?: string;
+  startReadingValue: number | null;
+  startReadingDate: string | null;
+  endReadingId?: string;
+  endReadingValue: number | null;
+  endReadingDate: string | null;
+  consumption: number | null;
+  consumptionShare: number; // percentage
+  status: "complete" | "missing_start" | "missing_end" | "missing_both" | "estimated";
+  isEstimated?: boolean;
+}
+
  export interface CostItem {
    id: string;
    name: string;
@@ -7,6 +25,7 @@
    distributionKey: "area" | "persons" | "units" | "consumption";
    isActive: boolean;
    isCustom?: boolean;
+  consumptionData?: MeterConsumptionData[];
  }
  
 export interface UnitDistributionData {
@@ -55,6 +74,8 @@ export interface CalculationResult {
   optionsIndividualStatements: boolean;
   optionsSendEmail: boolean;
   paymentDeadline: Date | null;
+  // Consumption meter data
+  meterConsumptionData: MeterConsumptionData[];
  }
  
  const DEFAULT_COST_TYPES: Omit<CostItem, "amount">[] = [
@@ -95,6 +116,7 @@ export interface CalculationResult {
     optionsIndividualStatements: true,
     optionsSendEmail: false,
     paymentDeadline: defaultDeadline,
+    meterConsumptionData: [],
    };
  };
  
@@ -109,6 +131,8 @@ export interface CalculationResult {
   updateUnitDistribution: (unitId: string, updates: Partial<UnitDistributionData>) => void;
   initializeUnitDistributions: (units: UnitDistributionData[]) => void;
   calculateResults: () => void;
+  setMeterConsumptionData: (data: MeterConsumptionData[]) => void;
+  updateMeterConsumption: (meterId: string, updates: Partial<MeterConsumptionData>) => void;
    resetWizard: () => void;
    isStepValid: (step: number) => boolean;
    totalCosts: number;
@@ -196,6 +220,22 @@ export interface CalculationResult {
     }));
   };
 
+  const setMeterConsumptionData = (data: MeterConsumptionData[]) => {
+    setWizardData((prev) => ({
+      ...prev,
+      meterConsumptionData: data,
+    }));
+  };
+
+  const updateMeterConsumption = (meterId: string, updates: Partial<MeterConsumptionData>) => {
+    setWizardData((prev) => ({
+      ...prev,
+      meterConsumptionData: prev.meterConsumptionData.map((m) =>
+        m.meterId === meterId ? { ...m, ...updates } : m
+      ),
+    }));
+  };
+
   const calculateResults = () => {
     const { costItems, unitDistributions, vacancyCostsToLandlord } = wizardData;
     const activeUnits = vacancyCostsToLandlord 
@@ -240,8 +280,21 @@ export interface CalculationResult {
               formula = `1 / ${totalUnits} Einheiten × ${(cost.amount / 100).toFixed(2)} €`;
               break;
             case "consumption":
+            // Use meter consumption data if available
+            const unitConsumption = wizardData.meterConsumptionData
+              .filter((m) => m.unitId === unit.unitId && m.consumption !== null)
+              .reduce((sum, m) => sum + (m.consumptionShare || 0), 0);
+            const totalConsumptionShare = wizardData.meterConsumptionData
+              .filter((m) => m.consumption !== null)
+              .reduce((sum, m) => sum + (m.consumptionShare || 0), 0);
+            
+            if (totalConsumptionShare > 0) {
+              share = (unitConsumption / totalConsumptionShare) * cost.amount;
+              formula = `${unitConsumption.toFixed(1)}% / ${totalConsumptionShare.toFixed(1)}% × ${(cost.amount / 100).toFixed(2)} €`;
+            } else {
               share = totalHeatingShare > 0 ? (unit.heatingShare / totalHeatingShare) * cost.amount : 0;
               formula = `${unit.heatingShare}% / ${totalHeatingShare}% × ${(cost.amount / 100).toFixed(2)} €`;
+            }
               break;
           }
 
@@ -337,6 +390,8 @@ export interface CalculationResult {
         updateUnitDistribution,
         initializeUnitDistributions,
         calculateResults,
+        setMeterConsumptionData,
+        updateMeterConsumption,
          resetWizard,
          isStepValid,
          totalCosts,

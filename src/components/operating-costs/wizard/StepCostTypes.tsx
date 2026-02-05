@@ -1,4 +1,4 @@
- import { useState } from "react";
+ import { useState, useMemo } from "react";
  import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
  import { Input } from "@/components/ui/input";
  import { Label } from "@/components/ui/label";
@@ -6,10 +6,13 @@
  import { Checkbox } from "@/components/ui/checkbox";
  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
  import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
  import { useBillingWizard, CostItem } from "./BillingWizardContext";
+import { MeterReadingsDialog } from "./MeterReadingsDialog";
  import { formatCurrency, cn } from "@/lib/utils";
- import { Euro, Plus, Trash2, Calculator } from "lucide-react";
+import { Euro, Plus, Trash2, Calculator, Gauge, AlertTriangle, CheckCircle2 } from "lucide-react";
  
  const DISTRIBUTION_KEY_OPTIONS = [
    { value: "area", label: "Nach m² (Fläche)" },
@@ -19,9 +22,12 @@
  ] as const;
  
  export function StepCostTypes() {
-   const { wizardData, updateCostItem, addCustomCostItem, removeCostItem, totalCosts } = useBillingWizard();
+  const { wizardData, updateCostItem, addCustomCostItem, removeCostItem, totalCosts } = useBillingWizard();
    const [newCostName, setNewCostName] = useState("");
    const [dialogOpen, setDialogOpen] = useState(false);
+  const [meterDialogOpen, setMeterDialogOpen] = useState(false);
+  const [meterDialogType, setMeterDialogType] = useState<"heating" | "water">("heating");
+  const [meterDialogCostId, setMeterDialogCostId] = useState("");
  
    const handleAddCustomCost = () => {
      if (newCostName.trim()) {
@@ -40,8 +46,74 @@
  
    const activeCosts = wizardData.costItems.filter((item) => item.isActive);
  
+  // Check if any active cost items need consumption data
+  const consumptionCostItems = useMemo(() => {
+    return wizardData.costItems.filter(
+      (item) =>
+        item.isActive &&
+        item.distributionKey === "consumption" &&
+        (item.id === "heating" || item.id === "hot_water" || item.name.toLowerCase().includes("heiz") || item.name.toLowerCase().includes("wasser"))
+    );
+  }, [wizardData.costItems]);
+
+  const hasConsumptionData = wizardData.meterConsumptionData.length > 0;
+  const completeConsumptionData = wizardData.meterConsumptionData.filter(
+    (m) => m.status === "complete" || m.status === "estimated"
+  ).length;
+
+  const openMeterDialog = (costItem: CostItem) => {
+    const isHeating = costItem.id === "heating" || costItem.name.toLowerCase().includes("heiz");
+    setMeterDialogType(isHeating ? "heating" : "water");
+    setMeterDialogCostId(costItem.id);
+    setMeterDialogOpen(true);
+  };
+
    return (
      <div className="space-y-6">
+      {/* Consumption Banner */}
+      {consumptionCostItems.length > 0 && (
+        <Alert className={cn(
+          "border-2",
+          hasConsumptionData ? "border-primary/50 bg-primary/5" : "border-amber-500/50 bg-amber-500/5"
+        )}>
+          <Gauge className={cn("h-4 w-4", hasConsumptionData ? "text-primary" : "text-amber-500")} />
+          <AlertDescription className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">
+                {hasConsumptionData ? "Verbrauchsdaten geladen" : "Verbrauchsabrechnung aktiviert"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {hasConsumptionData
+                  ? `${completeConsumptionData} von ${wizardData.meterConsumptionData.length} Zähler mit vollständigen Daten`
+                  : "Für die Verbrauchsabrechnung werden Zählerstände benötigt"}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {consumptionCostItems.map((item) => (
+                <Button
+                  key={item.id}
+                  variant={hasConsumptionData ? "outline" : "default"}
+                  size="sm"
+                  onClick={() => openMeterDialog(item)}
+                >
+                  {hasConsumptionData ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Zählerstände bearbeiten
+                    </>
+                  ) : (
+                    <>
+                      <Gauge className="h-4 w-4 mr-2" />
+                      Zählerstände laden
+                    </>
+                  )}
+                </Button>
+              ))}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
        <Card>
          <CardHeader>
            <CardTitle className="flex items-center gap-2">
@@ -122,6 +194,18 @@
                    ))}
                  </SelectContent>
                </Select>
+
+                {/* Consumption indicator */}
+                {item.isActive && item.distributionKey === "consumption" && (
+                  <Badge
+                    variant={hasConsumptionData ? "default" : "secondary"}
+                    className="cursor-pointer"
+                    onClick={() => openMeterDialog(item)}
+                  >
+                    <Gauge className="h-3 w-3 mr-1" />
+                    {hasConsumptionData ? "Daten" : "Laden"}
+                  </Badge>
+                )}
  
                {/* Delete (only for custom) */}
                {item.isCustom ? (
@@ -198,6 +282,14 @@
            </div>
          </CardContent>
        </Card>
+
+      {/* Meter Readings Dialog */}
+      <MeterReadingsDialog
+        open={meterDialogOpen}
+        onOpenChange={setMeterDialogOpen}
+        meterType={meterDialogType}
+        costItemId={meterDialogCostId}
+      />
      </div>
    );
  }
