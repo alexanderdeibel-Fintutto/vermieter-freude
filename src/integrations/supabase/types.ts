@@ -305,6 +305,88 @@ export type Database = {
           },
         ]
       }
+      meter_readings: {
+        Row: {
+          created_at: string
+          id: string
+          meter_id: string
+          notes: string | null
+          reading_date: string
+          reading_value: number
+          recorded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meter_id: string
+          notes?: string | null
+          reading_date: string
+          reading_value: number
+          recorded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meter_id?: string
+          notes?: string | null
+          reading_date?: string
+          reading_value?: number
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meter_readings_meter_id_fkey"
+            columns: ["meter_id"]
+            isOneToOne: false
+            referencedRelation: "meters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meters: {
+        Row: {
+          created_at: string
+          id: string
+          installation_date: string | null
+          meter_number: string
+          meter_type: Database["public"]["Enums"]["meter_type"]
+          notes: string | null
+          reading_interval_months: number
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          installation_date?: string | null
+          meter_number: string
+          meter_type: Database["public"]["Enums"]["meter_type"]
+          notes?: string | null
+          reading_interval_months?: number
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          installation_date?: string | null
+          meter_number?: string
+          meter_type?: Database["public"]["Enums"]["meter_type"]
+          notes?: string | null
+          reading_interval_months?: number
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meters_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operating_cost_items: {
         Row: {
           amount: number
@@ -950,6 +1032,8 @@ export type Database = {
         | "tax"
         | "correspondence"
         | "other"
+      meter_status: "current" | "reading_due" | "overdue"
+      meter_type: "electricity" | "gas" | "water" | "heating"
       transaction_type:
         | "rent"
         | "deposit"
@@ -1098,6 +1182,8 @@ export const Constants = {
         "correspondence",
         "other",
       ],
+      meter_status: ["current", "reading_due", "overdue"],
+      meter_type: ["electricity", "gas", "water", "heating"],
       transaction_type: [
         "rent",
         "deposit",
