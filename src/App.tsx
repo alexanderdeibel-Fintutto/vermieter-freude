@@ -38,7 +38,7 @@ import OperatingCosts from "./pages/operating-costs/OperatingCosts";
 import NewBilling from "./pages/operating-costs/NewBilling";
 import OperatingCostDetail from "./pages/operating-costs/OperatingCostDetail";
 import CostTypes from "./pages/operating-costs/CostTypes";
-import MeterDashboard from "./pages/meters/MeterDashboard";
+import MeterList from "./pages/meters/MeterList";
 import MeterDetail from "./pages/meters/MeterDetail";
 import TaskList from "./pages/tasks/TaskList";
 import TaskDetail from "./pages/tasks/TaskDetail";
@@ -143,7 +143,7 @@ const App = () => (
             } />
             <Route path="/zaehler" element={
               <ProtectedRoute>
-                <MeterDashboard />
+                <MeterList />
               </ProtectedRoute>
             } />
             <Route path="/zaehler/:id" element={
