@@ -56,6 +56,12 @@ import NewTask from "./pages/tasks/NewTask";
  // WhatsApp Pages
  import WhatsAppDashboard from "./pages/whatsapp/WhatsAppDashboard";
 
+ // Banking Pages
+ import BankingDashboard from "./pages/banking/BankingDashboard";
+ import BankConnect from "./pages/banking/BankConnect";
+ import BankTransactions from "./pages/banking/Transactions";
+ import MatchingRules from "./pages/banking/MatchingRules";
+
  // Tax Pages
  import AnlageVWizard from "./pages/taxes/AnlageVWizard";
  import TaxDocuments from "./pages/taxes/TaxDocuments";
@@ -230,6 +236,26 @@ const App = () => (
             <Route path="/whatsapp" element={
               <ProtectedRoute>
                 <WhatsAppDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/banking" element={
+              <ProtectedRoute>
+                <BankingDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/banking/verbinden" element={
+              <ProtectedRoute>
+                <BankConnect />
+              </ProtectedRoute>
+            } />
+            <Route path="/banking/transaktionen" element={
+              <ProtectedRoute>
+                <BankTransactions />
+              </ProtectedRoute>
+            } />
+            <Route path="/banking/regeln" element={
+              <ProtectedRoute>
+                <MatchingRules />
               </ProtectedRoute>
             } />
             <Route path="/documents" element={

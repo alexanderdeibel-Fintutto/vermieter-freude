@@ -55,6 +55,150 @@ export type Database = {
           },
         ]
       }
+      bank_accounts: {
+        Row: {
+          account_name: string
+          account_type: string
+          balance_cents: number
+          balance_date: string | null
+          connection_id: string
+          created_at: string
+          currency: string
+          finapi_account_id: string | null
+          iban: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          account_type?: string
+          balance_cents?: number
+          balance_date?: string | null
+          connection_id: string
+          created_at?: string
+          currency?: string
+          finapi_account_id?: string | null
+          iban: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          account_type?: string
+          balance_cents?: number
+          balance_date?: string | null
+          connection_id?: string
+          created_at?: string
+          currency?: string
+          finapi_account_id?: string | null
+          iban?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_accounts_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "finapi_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transactions: {
+        Row: {
+          account_id: string
+          amount_cents: number
+          booking_date: string
+          booking_text: string | null
+          counterpart_iban: string | null
+          counterpart_name: string | null
+          created_at: string
+          currency: string
+          finapi_transaction_id: string | null
+          id: string
+          match_confidence: number | null
+          match_status: string
+          matched_at: string | null
+          matched_by: string | null
+          matched_lease_id: string | null
+          matched_payment_id: string | null
+          matched_tenant_id: string | null
+          purpose: string | null
+          transaction_type: string | null
+          value_date: string | null
+        }
+        Insert: {
+          account_id: string
+          amount_cents: number
+          booking_date: string
+          booking_text?: string | null
+          counterpart_iban?: string | null
+          counterpart_name?: string | null
+          created_at?: string
+          currency?: string
+          finapi_transaction_id?: string | null
+          id?: string
+          match_confidence?: number | null
+          match_status?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          matched_lease_id?: string | null
+          matched_payment_id?: string | null
+          matched_tenant_id?: string | null
+          purpose?: string | null
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Update: {
+          account_id?: string
+          amount_cents?: number
+          booking_date?: string
+          booking_text?: string | null
+          counterpart_iban?: string | null
+          counterpart_name?: string | null
+          created_at?: string
+          currency?: string
+          finapi_transaction_id?: string | null
+          id?: string
+          match_confidence?: number | null
+          match_status?: string
+          matched_at?: string | null
+          matched_by?: string | null
+          matched_lease_id?: string | null
+          matched_payment_id?: string | null
+          matched_tenant_id?: string | null
+          purpose?: string | null
+          transaction_type?: string | null
+          value_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_matched_lease_id_fkey"
+            columns: ["matched_lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_matched_tenant_id_fkey"
+            columns: ["matched_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buildings: {
         Row: {
           address: string
@@ -391,6 +535,59 @@ export type Database = {
           },
           {
             foreignKeyName: "esignature_orders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finapi_connections: {
+        Row: {
+          bank_bic: string | null
+          bank_id: string
+          bank_logo_url: string | null
+          bank_name: string
+          created_at: string
+          error_message: string | null
+          finapi_user_id: string | null
+          id: string
+          last_sync_at: string | null
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bank_bic?: string | null
+          bank_id: string
+          bank_logo_url?: string | null
+          bank_name: string
+          created_at?: string
+          error_message?: string | null
+          finapi_user_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          organization_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bank_bic?: string | null
+          bank_id?: string
+          bank_logo_url?: string | null
+          bank_name?: string
+          created_at?: string
+          error_message?: string | null
+          finapi_user_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          organization_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finapi_connections_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -1452,6 +1649,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenants_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transaction_rules: {
+        Row: {
+          action_config: Json
+          action_type: string
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          last_match_at: string | null
+          match_count: number
+          name: string
+          organization_id: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          last_match_at?: string | null
+          match_count?: number
+          name: string
+          organization_id: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          last_match_at?: string | null
+          match_count?: number
+          name?: string
+          organization_id?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_rules_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
