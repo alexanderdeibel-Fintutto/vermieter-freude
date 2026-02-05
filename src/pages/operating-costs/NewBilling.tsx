@@ -4,6 +4,8 @@ import { Progress } from "@/components/ui/progress";
 import { BillingWizardProvider, useBillingWizard } from "@/components/operating-costs/wizard/BillingWizardContext";
 import { StepBuildingPeriod } from "@/components/operating-costs/wizard/StepBuildingPeriod";
 import { StepCostTypes } from "@/components/operating-costs/wizard/StepCostTypes";
+import { StepUnitsDistribution } from "@/components/operating-costs/wizard/StepUnitsDistribution";
+import { StepCalculation } from "@/components/operating-costs/wizard/StepCalculation";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,7 +22,7 @@ import {
 const STEPS = [
    { id: 1, title: "Gebäude & Zeitraum", icon: Building },
    { id: 2, title: "Kostenarten", icon: Euro },
-   { id: 3, title: "Mieter zuordnen", icon: Users },
+   { id: 3, title: "Einheiten", icon: Users },
    { id: 4, title: "Berechnung", icon: Calculator },
    { id: 5, title: "Zusammenfassung", icon: CheckCircle },
  ];
@@ -55,17 +57,9 @@ function WizardContent() {
        case 2:
          return <StepCostTypes />;
        case 3:
-         return (
-           <div className="flex items-center justify-center h-64 text-muted-foreground">
-             Schritt 3: Mieter zuordnen (Coming Soon)
-           </div>
-         );
+         return <StepUnitsDistribution />;
        case 4:
-         return (
-           <div className="flex items-center justify-center h-64 text-muted-foreground">
-             Schritt 4: Berechnung (Coming Soon)
-           </div>
-         );
+         return <StepCalculation />;
        case 5:
          return (
            <div className="flex items-center justify-center h-64 text-muted-foreground">
