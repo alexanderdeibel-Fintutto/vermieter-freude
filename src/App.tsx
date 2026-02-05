@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import BuildingDetail from "./pages/buildings/BuildingDetail";
 import UnitDetail from "./pages/einheiten/UnitDetail";
 import TenantDetail from "./pages/tenants/TenantDetail";
+import TenantDetailNew from "./pages/mieter/TenantDetail";
 import ContractList from "./pages/contracts/ContractList";
 import ContractDetail from "./pages/contracts/ContractDetail";
 import PaymentList from "./pages/payments/PaymentList";
@@ -89,7 +90,7 @@ const App = () => (
             } />
             <Route path="/mieter/:id" element={
               <ProtectedRoute>
-                <TenantDetail />
+                <TenantDetailNew />
               </ProtectedRoute>
             } />
             <Route path="/vertraege" element={
