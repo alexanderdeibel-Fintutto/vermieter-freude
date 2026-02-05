@@ -9,6 +9,35 @@
    isCustom?: boolean;
  }
  
+export interface UnitDistributionData {
+  unitId: string;
+  unitNumber: string;
+  tenantName: string | null;
+  tenantId: string | null;
+  area: number; // in m²
+  persons: number;
+  heatingShare: number; // percentage (0-100)
+  prepayments: number; // in cents
+  isVacant: boolean;
+}
+
+export interface CalculationResult {
+  unitId: string;
+  unitNumber: string;
+  tenantName: string | null;
+  costShare: number; // in cents
+  prepayments: number; // in cents
+  result: number; // in cents (positive = credit, negative = payment due)
+  costBreakdown: {
+    costItemId: string;
+    costItemName: string;
+    totalAmount: number;
+    share: number;
+    distributionKey: string;
+    formula: string;
+  }[];
+}
+
  export interface WizardData {
    // Step 1
    buildingId: string;
@@ -16,7 +45,11 @@
    periodEnd: Date | null;
    // Step 2
    costItems: CostItem[];
-   // Future steps...
+  // Step 3
+  unitDistributions: UnitDistributionData[];
+  vacancyCostsToLandlord: boolean;
+  // Step 4 - calculated
+  calculationResults: CalculationResult[];
  }
  
  const DEFAULT_COST_TYPES: Omit<CostItem, "amount">[] = [
@@ -48,6 +81,9 @@
      periodStart: new Date(lastYear, 0, 1),
      periodEnd: new Date(lastYear, 11, 31),
      costItems: getDefaultCostItems(),
+    unitDistributions: [],
+    vacancyCostsToLandlord: true,
+    calculationResults: [],
    };
  };
  
@@ -59,9 +95,13 @@
    updateCostItem: (id: string, updates: Partial<CostItem>) => void;
    addCustomCostItem: (name: string) => void;
    removeCostItem: (id: string) => void;
+  updateUnitDistribution: (unitId: string, updates: Partial<UnitDistributionData>) => void;
+  initializeUnitDistributions: (units: UnitDistributionData[]) => void;
+  calculateResults: () => void;
    resetWizard: () => void;
    isStepValid: (step: number) => boolean;
    totalCosts: number;
+  distributionTotals: { totalArea: number; totalPersons: number; totalUnits: number };
  }
  
  const BillingWizardContext = createContext<BillingWizardContextType | null>(null);
@@ -129,6 +169,101 @@
      }));
    };
  
+  const updateUnitDistribution = (unitId: string, updates: Partial<UnitDistributionData>) => {
+    setWizardData((prev) => ({
+      ...prev,
+      unitDistributions: prev.unitDistributions.map((unit) =>
+        unit.unitId === unitId ? { ...unit, ...updates } : unit
+      ),
+    }));
+  };
+
+  const initializeUnitDistributions = (units: UnitDistributionData[]) => {
+    setWizardData((prev) => ({
+      ...prev,
+      unitDistributions: units,
+    }));
+  };
+
+  const calculateResults = () => {
+    const { costItems, unitDistributions, vacancyCostsToLandlord } = wizardData;
+    const activeUnits = vacancyCostsToLandlord 
+      ? unitDistributions.filter((u) => !u.isVacant)
+      : unitDistributions;
+    
+    const totalArea = activeUnits.reduce((sum, u) => sum + u.area, 0);
+    const totalPersons = activeUnits.reduce((sum, u) => sum + u.persons, 0);
+    const totalUnits = activeUnits.length;
+    const totalHeatingShare = activeUnits.reduce((sum, u) => sum + u.heatingShare, 0);
+
+    const results: CalculationResult[] = unitDistributions.map((unit) => {
+      if (unit.isVacant && vacancyCostsToLandlord) {
+        return {
+          unitId: unit.unitId,
+          unitNumber: unit.unitNumber,
+          tenantName: unit.tenantName,
+          costShare: 0,
+          prepayments: unit.prepayments,
+          result: unit.prepayments, // Return all prepayments as credit
+          costBreakdown: [],
+        };
+      }
+
+      const costBreakdown = costItems
+        .filter((cost) => cost.isActive && cost.amount > 0)
+        .map((cost) => {
+          let share = 0;
+          let formula = "";
+
+          switch (cost.distributionKey) {
+            case "area":
+              share = totalArea > 0 ? (unit.area / totalArea) * cost.amount : 0;
+              formula = `${unit.area} m² / ${totalArea} m² × ${(cost.amount / 100).toFixed(2)} €`;
+              break;
+            case "persons":
+              share = totalPersons > 0 ? (unit.persons / totalPersons) * cost.amount : 0;
+              formula = `${unit.persons} Pers. / ${totalPersons} Pers. × ${(cost.amount / 100).toFixed(2)} €`;
+              break;
+            case "units":
+              share = totalUnits > 0 ? cost.amount / totalUnits : 0;
+              formula = `1 / ${totalUnits} Einheiten × ${(cost.amount / 100).toFixed(2)} €`;
+              break;
+            case "consumption":
+              share = totalHeatingShare > 0 ? (unit.heatingShare / totalHeatingShare) * cost.amount : 0;
+              formula = `${unit.heatingShare}% / ${totalHeatingShare}% × ${(cost.amount / 100).toFixed(2)} €`;
+              break;
+          }
+
+          return {
+            costItemId: cost.id,
+            costItemName: cost.name,
+            totalAmount: cost.amount,
+            share: Math.round(share),
+            distributionKey: cost.distributionKey,
+            formula,
+          };
+        });
+
+      const totalCostShare = costBreakdown.reduce((sum, c) => sum + c.share, 0);
+      const result = unit.prepayments - totalCostShare;
+
+      return {
+        unitId: unit.unitId,
+        unitNumber: unit.unitNumber,
+        tenantName: unit.tenantName,
+        costShare: totalCostShare,
+        prepayments: unit.prepayments,
+        result,
+        costBreakdown,
+      };
+    });
+
+    setWizardData((prev) => ({
+      ...prev,
+      calculationResults: results,
+    }));
+  };
+
    const resetWizard = () => {
      setWizardData(getDefaultWizardData());
      setCurrentStep(1);
@@ -149,6 +284,20 @@
        case 2:
          const activeItems = wizardData.costItems.filter((item) => item.isActive);
          return activeItems.length > 0 && activeItems.some((item) => item.amount > 0);
+      case 3:
+        // Check if units have required data based on distribution keys
+        const hasAreaKey = wizardData.costItems.some((c) => c.isActive && c.distributionKey === "area");
+        const hasPersonsKey = wizardData.costItems.some((c) => c.isActive && c.distributionKey === "persons");
+        const activeDistUnits = wizardData.vacancyCostsToLandlord 
+          ? wizardData.unitDistributions.filter((u) => !u.isVacant)
+          : wizardData.unitDistributions;
+        
+        if (activeDistUnits.length === 0) return false;
+        if (hasAreaKey && activeDistUnits.some((u) => u.area <= 0)) return false;
+        if (hasPersonsKey && activeDistUnits.some((u) => u.persons <= 0)) return false;
+        return true;
+      case 4:
+        return wizardData.calculationResults.length > 0;
        default:
          return true;
      }
@@ -158,6 +307,12 @@
      .filter((item) => item.isActive)
      .reduce((sum, item) => sum + item.amount, 0);
  
+  const distributionTotals = {
+    totalArea: wizardData.unitDistributions.reduce((sum, u) => sum + u.area, 0),
+    totalPersons: wizardData.unitDistributions.reduce((sum, u) => sum + u.persons, 0),
+    totalUnits: wizardData.unitDistributions.length,
+  };
+
    return (
      <BillingWizardContext.Provider
        value={{
@@ -168,9 +323,13 @@
          updateCostItem,
          addCustomCostItem,
          removeCostItem,
+        updateUnitDistribution,
+        initializeUnitDistributions,
+        calculateResults,
          resetWizard,
          isStepValid,
          totalCosts,
+        distributionTotals,
        }}
      >
        {children}
