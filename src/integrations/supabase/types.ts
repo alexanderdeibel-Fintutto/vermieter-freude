@@ -558,6 +558,86 @@ export type Database = {
           },
         ]
       }
+      document_ocr_results: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          detected_type: string
+          document_id: string
+          extracted_data: Json | null
+          id: string
+          organization_id: string
+          processed_at: string
+          raw_text: string | null
+          suggested_building_id: string | null
+          suggested_category: string | null
+          suggested_unit_id: string | null
+          updated_at: string
+          user_feedback: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          detected_type?: string
+          document_id: string
+          extracted_data?: Json | null
+          id?: string
+          organization_id: string
+          processed_at?: string
+          raw_text?: string | null
+          suggested_building_id?: string | null
+          suggested_category?: string | null
+          suggested_unit_id?: string | null
+          updated_at?: string
+          user_feedback?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          detected_type?: string
+          document_id?: string
+          extracted_data?: Json | null
+          id?: string
+          organization_id?: string
+          processed_at?: string
+          raw_text?: string | null
+          suggested_building_id?: string | null
+          suggested_category?: string | null
+          suggested_unit_id?: string | null
+          updated_at?: string
+          user_feedback?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_ocr_results_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_ocr_results_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_ocr_results_suggested_building_id_fkey"
+            columns: ["suggested_building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_ocr_results_suggested_unit_id_fkey"
+            columns: ["suggested_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_requests: {
         Row: {
           created_at: string
