@@ -138,10 +138,10 @@ export function QuickReadingDialog({
           console.error("Photo upload error:", uploadError);
           toast.error("Fehler beim Hochladen des Fotos");
         } else {
-          const { data: { publicUrl } } = supabase.storage
+          const { data: signedData } = await supabase.storage
             .from("meter-photos")
-            .getPublicUrl(fileName);
-          imageUrl = publicUrl;
+            .createSignedUrl(fileName, 3600);
+          imageUrl = signedData?.signedUrl || null;
         }
       }
 

@@ -1,6 +1,6 @@
- import { useState } from "react";
- import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
- import { supabase } from "@/integrations/supabase/client";
+  import { useState, useEffect, useCallback } from "react";
+  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  import { supabase } from "@/integrations/supabase/client";
  import { useAuth } from "@/hooks/useAuth";
  import { useToast } from "@/hooks/use-toast";
  import { Button } from "@/components/ui/button";
@@ -122,12 +122,33 @@
      }
    };
  
-   const getPublicUrl = (filePath: string) => {
-     const { data } = supabase.storage
-       .from("task-attachments")
-       .getPublicUrl(filePath);
-     return data.publicUrl;
-   };
+    // State for signed URLs
+    const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+
+    const resolveSignedUrls = useCallback(async (items: Attachment[]) => {
+      const urls: Record<string, string> = {};
+      await Promise.all(
+        items.map(async (item) => {
+          const { data } = await supabase.storage
+            .from("task-attachments")
+            .createSignedUrl(item.file_path, 3600);
+          if (data?.signedUrl) {
+            urls[item.file_path] = data.signedUrl;
+          }
+        })
+      );
+      setSignedUrls((prev) => ({ ...prev, ...urls }));
+    }, []);
+
+    useEffect(() => {
+      if (attachments.length > 0) {
+        resolveSignedUrls(attachments);
+      }
+    }, [attachments, resolveSignedUrls]);
+
+    const getFileUrl = (filePath: string) => {
+      return signedUrls[filePath] || "";
+    };
  
    const images = attachments.filter((a) => a.file_type === "image");
    const documents = attachments.filter((a) => a.file_type === "document");
@@ -179,11 +200,11 @@
            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
              {images.map((img) => (
                <div key={img.id} className="relative group aspect-square">
-                 <img
-                   src={getPublicUrl(img.file_path)}
-                   alt="Anhang"
-                   className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                   onClick={() => setSelectedImage(getPublicUrl(img.file_path))}
+                  <img
+                    src={getFileUrl(img.file_path)}
+                    alt="Anhang"
+                    className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setSelectedImage(getFileUrl(img.file_path))}
                  />
                  <Button
                    variant="destructive"
@@ -213,7 +234,7 @@
              {documents.map((doc) => (
                <Card key={doc.id} className="p-3 flex items-center justify-between">
                  <a
-                   href={getPublicUrl(doc.file_path)}
+                   href={getFileUrl(doc.file_path)}
                    target="_blank"
                    rel="noopener noreferrer"
                    className="flex items-center gap-2 text-sm hover:underline"

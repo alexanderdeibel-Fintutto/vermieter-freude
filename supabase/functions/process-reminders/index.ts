@@ -113,7 +113,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error processing reminders:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Reminder processing failed' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', ...corsHeaders }
     });

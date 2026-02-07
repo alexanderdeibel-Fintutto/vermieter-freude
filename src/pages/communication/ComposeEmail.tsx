@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader, LoadingState } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -450,7 +451,7 @@ export default function ComposeEmail() {
                       <p className="font-medium text-sm mb-4">{subject || "(kein Betreff)"}</p>
                       <div
                         className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: getPreviewContent() }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(getPreviewContent()) }}
                       />
                     </div>
                     {finalRecipientCount > 1 && (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import {
   Dialog,
   DialogContent,
@@ -298,7 +299,7 @@ export function TemplateEditorDialog({
                   </div>
                   <div
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: bodyHtml }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(bodyHtml) }}
                   />
                 </Card>
               </TabsContent>

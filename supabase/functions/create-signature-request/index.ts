@@ -106,15 +106,14 @@
        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
      });
  
-   } catch (error: unknown) {
-     console.error('Error creating signature request:', error);
-     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-     return new Response(JSON.stringify({ 
-       success: false, 
-       error: errorMessage 
-     }), {
-       status: 400,
-       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-     });
-   }
+    } catch (error: unknown) {
+      console.error('Error creating signature request:', error);
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: 'Signature request failed. Please try again.' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
  });

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader, StatCard, DataTable, EmptyState, LoadingState } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -320,7 +321,7 @@ export default function EmailHistory() {
                   <CardContent className="pt-4">
                     <div
                       className="prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedEmail.body_html) }}
                     />
                   </CardContent>
                 </Card>

@@ -343,9 +343,9 @@
      const { data, error } = await supabase.storage
        .from("handover-files")
        .upload(path, file, { upsert: true });
-     if (error) throw error;
-     const { data: urlData } = supabase.storage.from("handover-files").getPublicUrl(data.path);
-     return urlData.publicUrl;
+      if (error) throw error;
+      const { data: signedData } = await supabase.storage.from("handover-files").createSignedUrl(data.path, 3600);
+      return signedData?.signedUrl || data.path;
    };
  
    return {
