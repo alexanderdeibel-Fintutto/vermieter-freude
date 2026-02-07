@@ -26,31 +26,31 @@ interface MainLayoutProps {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+        <SidebarInset className="bg-transparent">
+          <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4 backdrop-blur-md bg-white/5">
             <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <SidebarTrigger className="-ml-1 text-white/80 hover:text-white" />
+            <Separator orientation="vertical" className="mr-2 h-4 bg-white/20" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">Vermietify</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard" className="text-white/70 hover:text-white">Vermietify</BreadcrumbLink>
                 </BreadcrumbItem>
                 {breadcrumbs.map((crumb, index) => (
                   <BreadcrumbItem key={index}>
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator className="text-white/40" />
                     {crumb.href ? (
-                      <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                      <BreadcrumbLink href={crumb.href} className="text-white/70 hover:text-white">{crumb.label}</BreadcrumbLink>
                     ) : (
-                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      <BreadcrumbPage className="text-white">{crumb.label}</BreadcrumbPage>
                     )}
                   </BreadcrumbItem>
                 ))}
                 {breadcrumbs.length === 0 && (
                   <>
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator className="text-white/40" />
                     <BreadcrumbItem>
-                      <BreadcrumbPage>{title}</BreadcrumbPage>
+                      <BreadcrumbPage className="text-white">{title}</BreadcrumbPage>
                     </BreadcrumbItem>
                   </>
                 )}
