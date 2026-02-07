@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Plus, MapPin, Home, Search, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +39,7 @@ interface Unit {
 export default function Properties() {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -481,7 +483,7 @@ export default function Properties() {
                         </div>
                       )}
 
-                      <Button variant="outline" className="w-full mt-2">
+                      <Button variant="outline" className="w-full mt-2" onClick={() => navigate(`/gebaeude/${building.id}`)}>
                         Details anzeigen
                       </Button>
                     </div>
