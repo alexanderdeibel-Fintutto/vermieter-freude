@@ -119,7 +119,7 @@ export function AppSidebar() {
     subItems.some(item => location.pathname === item.url || location.pathname.startsWith(item.url.split('#')[0]));
 
   return (
-    <Sidebar className="border-r-0 [&_[data-sidebar=sidebar]]:!bg-[linear-gradient(180deg,hsl(217_91%_53%)_0%,hsl(243_75%_59%)_100%)] dark:[&_[data-sidebar=sidebar]]:!bg-[linear-gradient(180deg,hsl(230_50%_22%)_0%,hsl(243_40%_18%)_100%)]">
+    <Sidebar className="border-r-0 [&_[data-sidebar=sidebar]]:!bg-[linear-gradient(180deg,hsl(250_50%_18%)_0%,hsl(280_55%_38%)_55%,hsl(20_80%_55%)_100%)] dark:[&_[data-sidebar=sidebar]]:!bg-[linear-gradient(180deg,hsl(260_45%_10%)_0%,hsl(270_40%_20%)_55%,hsl(20_60%_30%)_100%)]">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
