@@ -22,56 +22,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 9%;
+    --background: 260 30% 14%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 9%;
+    --card: 260 25% 18% / 0.85;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 89%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 260 30% 20%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary: Purple from gradient */
-    --primary: 243 75% 58%;
-    --primary-foreground: 225 100% 96%;
+    /* Primary: Warm coral-orange from gradient */
+    --primary: 20 85% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Deep indigo */
-    --secondary: 0 0% 32%;
+    /* Secondary: Purple from gradient */
+    --secondary: 270 45% 40%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 63%;
-    --muted-foreground: 0 0% 9%;
+    --muted: 260 20% 25%;
+    --muted-foreground: 260 15% 70%;
 
-    /* Accent: Warm coral-orange */
-    --accent: 250 100% 97%;
-    --accent-foreground: 258 89% 66%;
+    /* Accent: Bright purple-violet */
+    --accent: 280 55% 38%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
 
     /* Status Colors */
-    --success: 142 70% 45%;
+    --success: 142 60% 50%;
     --success-foreground: 0 0% 100%;
-    --warning: 30 90% 52%;
+    --warning: 35 90% 55%;
     --warning-foreground: 0 0% 100%;
-    --info: 263 60% 58%;
+    --info: 263 60% 65%;
     --info-foreground: 0 0% 100%;
 
-    --border: 0 0% 83%;
-    --input: 0 0% 83%;
-    --ring: 243 75% 58%;
+    --border: 260 20% 30%;
+    --input: 260 20% 28%;
+    --ring: 20 85% 58%;
 
     --radius: 1.25rem;
 
-    /* Sidebar - Gradient theme matching bg image */
-    --sidebar-background: 263 70% 50%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 243 75% 58%;
-    --sidebar-primary-foreground: 225 100% 96%;
-    --sidebar-accent: 0 0% 32%;
+    /* Sidebar - Gradient theme matching bg */
+    --sidebar-background: 250 50% 18%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 20 85% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 40% 30%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 83%;
-    --sidebar-ring: 243 75% 58%;
+    --sidebar-border: 260 20% 30%;
+    --sidebar-ring: 20 85% 58%;
 
     /* Gradient matching the bg image */
     --gradient-primary: linear-gradient(135deg, hsl(20 85% 58%) 0%, hsl(280 60% 45%) 50%, hsl(250 50% 20%) 100%);
@@ -82,14 +82,14 @@
     --meter-cold-water: 200 85% 50%;
     --meter-warm-water: 0 85% 58%;
     --meter-heating: 15 92% 55%;
-    --glass-bg: 0 0% 100% / 0.7;
-    --glass-border: 0 0% 100% / 0.3;
-    --chart-1: 234 89% 73%;
-    --chart-2: 255 91% 76%;
-    --chart-3: 270 95% 75%;
-    --chart-4: 238 83% 66%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 98%;
+    --glass-bg: 260 30% 20% / 0.6;
+    --glass-border: 270 20% 90% / 0.15;
+    --chart-1: 20 85% 58%;
+    --chart-2: 280 55% 55%;
+    --chart-3: 250 50% 45%;
+    --chart-4: 35 90% 55%;
+    --chart-5: 270 40% 65%;
+    --sidebar: 260 25% 18%;
     --font-sans: 'Lato', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'EB Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -122,29 +122,29 @@
   }
 
   .dark {
-    --background: 0 0% 9%;
+    --background: 250 45% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 14%;
+    --card: 250 40% 12% / 0.85;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 25%;
+    --popover: 250 40% 14%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 234 89% 73%;
-    --primary-foreground: 243 47% 20%;
+    --primary: 20 85% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 45%;
+    --secondary: 270 35% 30%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 45%;
-    --muted-foreground: 0 0% 98%;
+    --muted: 260 20% 20%;
+    --muted-foreground: 260 15% 65%;
 
-    --accent: 261 72% 22%;
-    --accent-foreground: 255 91% 76%;
+    --accent: 280 45% 28%;
+    --accent-foreground: 280 60% 80%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive-foreground: 0 0% 100%;
 
     --success: 142 60% 40%;
     --success-foreground: 0 0% 100%;
@@ -153,28 +153,28 @@
     --info: 270 60% 65%;
     --info-foreground: 0 0% 100%;
 
-    --border: 0 0% 32%;
-    --input: 0 0% 32%;
-    --ring: 234 89% 73%;
+    --border: 260 20% 22%;
+    --input: 260 20% 22%;
+    --ring: 20 85% 58%;
 
-    --sidebar-background: 260 45% 12%;
+    --sidebar-background: 250 45% 8%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 234 89% 73%;
-    --sidebar-primary-foreground: 243 47% 20%;
-    --sidebar-accent: 255 91% 76%;
-    --sidebar-accent-foreground: 261 72% 22%;
-    --sidebar-border: 0 0% 32%;
-    --sidebar-ring: 234 89% 73%;
+    --sidebar-primary: 20 85% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 35% 25%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 260 20% 22%;
+    --sidebar-ring: 20 85% 58%;
     --primary-glow: 20 85% 58%;
     --secondary-glow: 280 60% 45%;
     --glass-bg: 260 30% 10% / 0.8;
     --glass-border: 270 20% 90% / 0.1;
-    --chart-1: 229 93% 81%;
-    --chart-2: 252 94% 85%;
-    --chart-3: 269 97% 85%;
-    --chart-4: 234 89% 73%;
-    --chart-5: 0 0% 45%;
-    --sidebar: 0 0% 14%;
+    --chart-1: 20 85% 62%;
+    --chart-2: 280 55% 60%;
+    --chart-3: 250 50% 50%;
+    --chart-4: 35 90% 58%;
+    --chart-5: 270 40% 70%;
+    --sidebar: 250 40% 12%;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -200,13 +200,11 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
-    background-image: url('/images/bg-diagonal.png');
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(160deg, hsl(250 50% 14%) 0%, hsl(270 45% 28%) 30%, hsl(280 55% 38%) 50%, hsl(15 70% 48%) 80%, hsl(20 85% 58%) 100%);
     background-attachment: fixed;
-    background-repeat: no-repeat;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {

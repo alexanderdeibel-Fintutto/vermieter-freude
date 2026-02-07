@@ -156,8 +156,8 @@ export default function Dashboard() {
       <div className="space-y-6">
         {/* Welcome Section */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard</h1>
+          <p className="text-white/60">
             Willkommen zurück! Hier ist die Übersicht Ihrer Immobilien.
           </p>
         </div>
@@ -168,12 +168,12 @@ export default function Dashboard() {
         {/* KPI Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {kpiCards.map((card, index) => (
-            <Card key={index}>
+            <Card key={index} className="backdrop-blur-md bg-white/10 border-white/15 text-white">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium text-white/70">
                   {card.title}
                 </CardTitle>
-                <card.icon className="h-4 w-4 text-muted-foreground" />
+                <card.icon className="h-4 w-4 text-white/50" />
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -181,7 +181,7 @@ export default function Dashboard() {
                 ) : (
                   <>
                     <div className="text-2xl font-bold">{card.value}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-white/50 mt-1">
                       {card.description}
                     </p>
                     <Badge 
@@ -200,7 +200,7 @@ export default function Dashboard() {
         {/* Charts and Tasks Row */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Revenue Chart */}
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 backdrop-blur-md bg-white/10 border-white/15 text-white">
             <CardHeader>
               <CardTitle>Mieteinnahmen</CardTitle>
               <CardDescription>
@@ -246,7 +246,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Open Tasks */}
-          <Card>
+          <Card className="backdrop-blur-md bg-white/10 border-white/15 text-white">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckSquare className="h-5 w-5" />
@@ -303,7 +303,7 @@ export default function Dashboard() {
 
         {/* Quick Stats */}
         <div className="grid gap-4 md:grid-cols-3">
-          <Card>
+          <Card className="backdrop-blur-md bg-white/10 border-white/15 text-white">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -316,7 +316,7 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="backdrop-blur-md bg-white/10 border-white/15 text-white">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10">
@@ -329,7 +329,7 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="backdrop-blur-md bg-white/10 border-white/15 text-white">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
