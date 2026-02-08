@@ -124,11 +124,11 @@ serve(async (req) => {
       });
     }
 
-    const { type, content } = await req.json();
+    const { type, content, fileBase64, mimeType } = await req.json();
 
-    if (!type || !content) {
+    if (!type || (!content && !fileBase64)) {
       return new Response(
-        JSON.stringify({ error: "type und content sind erforderlich" }),
+        JSON.stringify({ error: "type und content/fileBase64 sind erforderlich" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -146,6 +146,29 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Build messages: multimodal for PDFs, text for everything else
+    const messages: any[] = [
+      { role: "system", content: systemPrompt },
+    ];
+
+    if (fileBase64 && mimeType) {
+      // Multimodal: send PDF/image as proper data URL
+      const dataUrl = `data:${mimeType};base64,${fileBase64}`;
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: "Analysiere dieses Dokument und extrahiere die Daten:" },
+          { type: "image_url", image_url: { url: dataUrl } },
+        ],
+      });
+    } else {
+      // Text content (CSV text, plain text, etc.)
+      messages.push({
+        role: "user",
+        content: `Analysiere dieses Dokument und extrahiere die Daten:\n\n${content}`,
+      });
+    }
+
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -156,13 +179,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: systemPrompt },
-            {
-              role: "user",
-              content: `Analysiere dieses Dokument und extrahiere die Daten:\n\n${content}`,
-            },
-          ],
+          messages,
         }),
       }
     );
