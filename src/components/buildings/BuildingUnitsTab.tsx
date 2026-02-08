@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Eye, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import type { Database } from "@/integrations/supabase/types";
+import { BulkImportDialog } from "@/components/import/BulkImportDialog";
 
 type BuildingRow = Database["public"]["Tables"]["buildings"]["Row"];
 type UnitRow = Database["public"]["Tables"]["units"]["Row"];
@@ -26,6 +28,7 @@ interface BuildingUnitsTabProps {
 
 export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps) {
   const navigate = useNavigate();
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const units = building.units || [];
 
   const getStatusBadge = (status: string) => {
@@ -136,10 +139,16 @@ export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps)
             {units.length} Einheiten in diesem Gebäude
           </p>
         </div>
-        <Button onClick={onAddUnit}>
-          <Plus className="h-4 w-4 mr-2" />
-          Einheit hinzufügen
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            PDF/CSV Import
+          </Button>
+          <Button onClick={onAddUnit}>
+            <Plus className="h-4 w-4 mr-2" />
+            Einheit hinzufügen
+          </Button>
+        </div>
       </div>
 
       <DataTable
@@ -149,6 +158,14 @@ export function BuildingUnitsTab({ building, onAddUnit }: BuildingUnitsTabProps)
         searchPlaceholder="Einheiten durchsuchen..."
         pagination={units.length > 10}
         pageSize={10}
+      />
+
+      <BulkImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        type="units"
+        buildingId={building.id}
+        onSuccess={() => window.location.reload()}
       />
     </div>
   );

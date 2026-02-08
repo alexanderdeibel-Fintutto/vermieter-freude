@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Plus, MapPin, Home, Search, Loader2 } from "lucide-react";
+import { Building2, Plus, MapPin, Home, Search, Loader2, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { buildingSchema, BuildingFormData } from "@/lib/validationSchemas";
 import { sanitizeErrorMessage } from "@/lib/errorHandler";
 import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
+import { BulkImportDialog } from "@/components/import/BulkImportDialog";
 interface Building {
   id: string;
   name: string;
@@ -44,6 +45,7 @@ export default function Properties() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddressValidated, setIsAddressValidated] = useState(false);
 
@@ -235,13 +237,18 @@ export default function Properties() {
               Verwalten Sie Ihre Gebäude und Wohneinheiten
             </p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Gebäude hinzufügen
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              PDF/CSV Import
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Gebäude hinzufügen
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
               <form onSubmit={handleCreateBuilding}>
                 <DialogHeader>
@@ -356,8 +363,8 @@ export default function Properties() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
-
         {/* Search */}
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -494,6 +501,14 @@ export default function Properties() {
           </div>
         )}
       </div>
+
+      <BulkImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        type="buildings"
+        organizationId={profile?.organization_id}
+        onSuccess={() => fetchBuildings()}
+      />
     </MainLayout>
   );
 }
