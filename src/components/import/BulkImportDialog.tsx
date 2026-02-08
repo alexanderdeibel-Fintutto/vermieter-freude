@@ -21,15 +21,30 @@ import {
   TenantsPreviewTable, ContractsPreviewTable,
 } from "./PreviewTables";
 import { consolidateTenants, consolidateContracts } from "./consolidation";
+import { parseSpreadsheet } from "./csvParser";
 
 // ─── Helpers ───
-function readFileAsText(file: File): Promise<string> {
+function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = () => resolve(reader.result as ArrayBuffer);
     reader.onerror = reject;
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   });
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function isSpreadsheet(file: File): boolean {
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  return ext === "csv" || ext === "xlsx" || ext === "xls";
 }
 
 export function BulkImportDialog({
@@ -83,47 +98,64 @@ export function BulkImportDialog({
     setFile(selected);
   };
 
-  // ─── AI Extraction ───
+  // ─── Extraction: AI for PDFs, direct parsing for CSV/XLSX ───
   const handleExtract = async () => {
     if (!file) return;
     setIsExtracting(true);
 
     try {
-      let textContent: string;
-      if (file.type === "application/pdf") {
-        const buffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        let binary = "";
-        bytes.forEach((b) => (binary += String.fromCharCode(b)));
-        const base64 = btoa(binary);
-        textContent = `[PDF-Datei: ${file.name}]\nBase64-Inhalt:\n${base64.substring(0, 50000)}`;
+      let extractedData: any[];
+
+      if (isSpreadsheet(file)) {
+        // ── Direct CSV/XLSX parsing (no AI needed) ──
+        const buffer = await readFileAsArrayBuffer(file);
+        const result = parseSpreadsheet(buffer, type, file.name);
+        if (!result.success) {
+          throw new Error((result as { success: false; error: string }).error);
+        }
+        extractedData = (result as { success: true; data: any[] }).data;
       } else {
-        textContent = await readFileAsText(file);
+        // ── AI extraction for PDFs and text files ──
+        const buffer = await readFileAsArrayBuffer(file);
+        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+        let body: Record<string, any>;
+        if (isPdf) {
+          // Send PDF as proper multimodal content (base64 data URL)
+          const base64 = arrayBufferToBase64(buffer);
+          body = { type, fileBase64: base64, mimeType: "application/pdf" };
+        } else {
+          // Plain text file
+          const decoder = new TextDecoder("utf-8");
+          const textContent = decoder.decode(buffer);
+          body = { type, content: textContent };
+        }
+
+        const { data, error } = await supabase.functions.invoke("extract-import-data", {
+          body,
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data?.success) throw new Error(data?.error || "Extraktion fehlgeschlagen. Bitte prüfen Sie, ob die Datei relevante Daten enthält.");
+        extractedData = data.data;
       }
-
-      const { data, error } = await supabase.functions.invoke("extract-import-data", {
-        body: { type, content: textContent },
-      });
-
-      if (error) throw new Error(error.message);
-      if (!data?.success) throw new Error(data?.error || "Extraktion fehlgeschlagen. Bitte prüfen Sie, ob die Datei relevante Daten enthält.");
 
       // Set extracted data and run consolidation for tenants/contracts
       if (type === "units") {
-        setExtractedUnits((data.data as ExtractedUnit[]).map((u) => ({ ...u, _selected: true })));
+        setExtractedUnits((extractedData as ExtractedUnit[]).map((u) => ({ ...u, _selected: true })));
         setStep("preview");
       } else if (type === "buildings") {
-        setExtractedBuildings((data.data as ExtractedBuilding[]).map((b) => ({ ...b, _selected: true })));
+        setExtractedBuildings((extractedData as ExtractedBuilding[]).map((b) => ({ ...b, _selected: true })));
         setStep("preview");
       } else if (type === "tenants") {
         const consolidated = await consolidateTenants(
-          (data.data as ExtractedTenant[]).map((t) => ({ ...t, _selected: true }))
+          (extractedData as ExtractedTenant[]).map((t) => ({ ...t, _selected: true }))
         );
         setExtractedTenants(consolidated);
         const hasDuplicates = consolidated.some((t) => t._existingMatch);
         setStep(hasDuplicates ? "consolidation" : "preview");
       } else if (type === "contracts") {
-        const rawContracts = (data.data as ExtractedContract[]).map((c) => ({ ...c, _selected: true }));
+        const rawContracts = (extractedData as ExtractedContract[]).map((c) => ({ ...c, _selected: true }));
         const consolidated = await consolidateContracts(rawContracts);
         setExtractedContracts(consolidated);
 
@@ -364,7 +396,9 @@ export function BulkImportDialog({
               <Button variant="outline" onClick={() => handleOpenChange(false)}>Abbrechen</Button>
               <Button onClick={handleExtract} disabled={!file || isExtracting}>
                 {isExtracting ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />KI analysiert...</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{file && isSpreadsheet(file) ? "Wird geparst..." : "KI analysiert..."}</>
+                ) : file && isSpreadsheet(file) ? (
+                  <><FileText className="h-4 w-4 mr-2" />Datei einlesen</>
                 ) : (
                   <><Sparkles className="h-4 w-4 mr-2" />Mit KI analysieren</>
                 )}
