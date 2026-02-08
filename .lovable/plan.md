@@ -1,190 +1,132 @@
 
-# Stripe Subscription Integration Plan
 
-## Uebersicht
+# Integration externer Rechner-Apps in Vermietify
 
-Implementierung einer vollstaendigen Stripe-Subscription-Integration fuer Vermietify mit Pricing-Seite, Checkout-Flow, Webhook-Handling und Feature-Gating.
+## Zusammenfassung
 
----
+Die externen Rechner-Apps (Mietenplus-Rechner, Property Costs, Betriebskosten-Helfer und weitere) werden per **Deep-Link mit Auto-Login** in Vermietify eingebunden. Da alle Apps dieselbe Datenbank nutzen, teilen sich die Nutzer automatisch ihre Gebaeude- und Mieterdaten. Die Rechner werden ueber die Sidebar-Navigation unter "Rechner" erreichbar sein.
 
-## Phase 1: Stripe Aktivierung
+## Architektur-Ueberblick
 
-### 1.1 Stripe Integration aktivieren
-- Lovable's native Stripe-Integration aktivieren
-- Stripe Secret Key konfigurieren (wird vom User eingegeben)
-- Stripe Public Key als Environment Variable speichern
+Die Loesung besteht aus drei Teilen:
 
----
+1. **Datenbank-Registry**: Eine Tabelle `calculator_apps`, die alle verfuegbaren Rechner-Apps mit ihren URLs verwaltet
+2. **Token-Weitergabe**: Ein Mechanismus, der den aktuellen Auth-Token sicher an die externe App uebergibt, sodass der Nutzer dort automatisch eingeloggt ist
+3. **Kontext-Weitergabe**: Gebaeude-ID und Organisations-ID werden per URL-Parameter mitgegeben, damit die externe App sofort den richtigen Kontext zeigt
 
-## Phase 2: Datenbank-Schema
+## Ablauf fuer den Nutzer
 
-### 2.1 User Subscriptions Tabelle erstellen
-
-```text
-+-------------------------+
-|   user_subscriptions    |
-+-------------------------+
-| id (UUID, PK)          |
-| user_id (UUID)         |
-| stripe_customer_id     |
-| stripe_subscription_id |
-| app_id                 |
-| plan_id                |
-| status                 |
-| current_period_start   |
-| current_period_end     |
-| cancel_at_period_end   |
-| created_at             |
-| updated_at             |
-+-------------------------+
-```
-
-### 2.2 RLS Policies
-- SELECT: User sieht nur eigene Subscriptions
-- INSERT/UPDATE/DELETE: Nur via Service Role (Webhook)
-
----
-
-## Phase 3: Backend (Edge Functions)
-
-### 3.1 create-checkout-session
-- Erstellt Stripe Checkout Session
-- Erstellt/holt stripe_customer_id fuer User
-- Gibt Checkout URL zurueck
-
-### 3.2 stripe-webhook
-- Verarbeitet Stripe Events
-- checkout.session.completed -> Subscription erstellen
-- customer.subscription.updated -> Status aktualisieren
-- customer.subscription.deleted -> Subscription deaktivieren
-
-### 3.3 create-portal-session
-- Erstellt Stripe Customer Portal Session
-- Fuer Plan-Aenderungen und Kuendigungen
-
----
-
-## Phase 4: Frontend Komponenten
-
-### 4.1 Neue Dateien
-
-| Datei | Beschreibung |
-|-------|--------------|
-| src/pages/Pricing.tsx | Pricing-Seite mit Plan-Karten |
-| src/pages/PaymentSuccess.tsx | Erfolgs-Seite nach Zahlung |
-| src/hooks/useSubscription.tsx | Hook fuer Subscription-Status |
-| src/components/subscription/PricingCard.tsx | Einzelne Plan-Karte |
-| src/components/subscription/UpgradePrompt.tsx | Upgrade-Aufforderung |
-| src/components/subscription/BillingToggle.tsx | Monatlich/Jaehrlich Toggle |
-| src/lib/stripe.ts | Stripe Helper-Funktionen |
-| src/config/plans.ts | Plan-Konfiguration |
-
-### 4.2 Pricing Page Features
-- Monatlich/Jaehrlich Toggle (20% Rabatt)
-- 4 Plan-Karten: Free, Basic, Pro, Business
-- Dynamische CTA-Buttons basierend auf User-Status
-- Responsive Design
-
-### 4.3 Plan Konfiguration
-
-```text
-FREE     - 0 EUR     - 1 Immobilie, 5 Einheiten
-BASIC    - 9.99 EUR  - 3 Immobilien, 25 Einheiten
-PRO      - 24.99 EUR - 10 Immobilien, 100 Einheiten
-BUSINESS - 49.99 EUR - Unbegrenzt
-```
-
-### 4.4 useSubscription Hook
-- Laedt aktuelle Subscription
-- Stellt plan, isPro, isActive bereit
-- Caching mit React Query
-
-### 4.5 UpgradePrompt Komponente
-- Wird bei Pro-Features angezeigt
-- Link zur Pricing-Seite
-- Erklaert Feature-Vorteile
-
----
-
-## Phase 5: Routing & Navigation
-
-### 5.1 Neue Routes
-- /pricing - Pricing-Seite (oeffentlich)
-- /payment-success - Erfolgs-Seite (protected)
-
-### 5.2 Navigation Update
-- Link zur Pricing-Seite in Sidebar
-- "Upgrade" Button in Settings
-
----
+1. Nutzer klickt in der Vermietify-Sidebar auf "Rechner" und waehlt z.B. "Mietenplus-Rechner"
+2. Es oeffnet sich eine Zwischenseite mit Gebaeude-Auswahl (optional) und einem "Rechner oeffnen"-Button
+3. Klick oeffnet die externe App in einem neuen Tab mit Token und Kontext in der URL
+4. Die externe App liest den Token, setzt die Session, und zeigt die Gebaeude des Nutzers
+5. Berechnungen und Daten, die der Nutzer dort eingibt, landen in der gemeinsamen Datenbank und sind automatisch auch in Vermietify sichtbar
 
 ## Technische Details
 
-### Edge Function: create-checkout-session
+### Schritt 1: Datenbank-Tabelle `calculator_apps`
+
+Neue Tabelle zur Verwaltung der Rechner-Apps:
 
 ```text
-Request:
-POST /create-checkout-session
-{
-  priceId: string,
-  successUrl: string,
-  cancelUrl: string
-}
-
-Response:
-{
-  url: string (Stripe Checkout URL)
-}
+calculator_apps
+---------------------------------
+id             UUID (PK)
+slug           TEXT (unique) -- z.B. "mietenplus", "betriebskosten-helfer"
+name           TEXT          -- Anzeigename
+description    TEXT          -- Kurzbeschreibung
+app_url        TEXT          -- Basis-URL der externen App
+icon_name      TEXT          -- Lucide-Icon-Name
+sort_order     INT           -- Reihenfolge in der Navigation
+is_active      BOOLEAN       -- Ob der Rechner sichtbar ist
+category       TEXT          -- Kategorie (z.B. "miete", "nebenkosten", "energie")
+created_at     TIMESTAMP
+updated_at     TIMESTAMP
 ```
 
-### Edge Function: stripe-webhook
+RLS-Policy: Alle eingeloggten Nutzer duerfen lesen. Nur Admins duerfen Eintraege verwalten.
 
-```text
-Events verarbeitet:
-- checkout.session.completed
-- customer.subscription.created
-- customer.subscription.updated
-- customer.subscription.deleted
-- invoice.payment_succeeded
-- invoice.payment_failed
-```
+Initiale Eintraege:
+- CO2-Kostenrechner (intern, URL: `/co2`)
+- Mietenplus-Rechner (extern)
+- Property Costs / Betriebskosten-Helfer (extern)
 
-### Edge Function: create-portal-session
+### Schritt 2: Rechner-Hub-Seite (`/rechner`)
 
-```text
-Request:
-POST /create-portal-session
-{
-  returnUrl: string
-}
+Eine neue Seite, die alle verfuegbaren Rechner als Karten anzeigt:
 
-Response:
-{
-  url: string (Stripe Portal URL)
-}
-```
+- Zeigt Name, Beschreibung und Icon jedes Rechners
+- Bei internen Rechnern (wie CO2): Direkter Link zur internen Route
+- Bei externen Rechnern: Gebaeude-Auswahl-Dropdown + "Oeffnen"-Button
+- Badge "Intern" vs. "Extern" zur Orientierung
 
----
+### Schritt 3: Token-Weitergabe-Mechanismus
 
-## Implementierungs-Reihenfolge
+Wenn ein externer Rechner geoeffnet wird:
 
-1. Stripe Integration aktivieren
-2. Datenbank-Migration ausfuehren
-3. Edge Functions erstellen und deployen
-4. Plan-Konfiguration erstellen
-5. useSubscription Hook implementieren
-6. Pricing-Seite erstellen
-7. Success-Seite erstellen
-8. UpgradePrompt Komponente erstellen
-9. Routing aktualisieren
-10. Navigation anpassen
-11. Ende-zu-Ende testen
+1. Aktuellen `access_token` aus der Supabase-Session holen
+2. URL zusammenbauen: `{app_url}?token={access_token}&building_id={selected_building_id}&org_id={org_id}`
+3. Externe App wird in neuem Browser-Tab geoeffnet (`window.open`)
+4. Die externe App nutzt `supabase.auth.setSession()` mit dem uebergebenen Token
 
----
+Hinweis: Da alle Apps denselben Supabase-Backend nutzen, ist der Token direkt gueltig. Kein zusaetzlicher Auth-Service noetig.
 
-## Sicherheitshinweise
+### Schritt 4: Navigation anpassen
 
-- Webhook-Signatur-Verifizierung
-- RLS Policies fuer Subscriptions
-- Service Role nur fuer Webhooks
-- Keine sensiblen Daten im Frontend
+Die Sidebar unter "Rechner" wird dynamisch aus der `calculator_apps`-Tabelle befuellt:
+
+- Statischer Fallback fuer den Fall, dass die DB-Abfrage fehlschlaegt
+- Interne Rechner verlinken direkt auf die Route
+- Externe Rechner verlinken auf `/rechner/{slug}` (Zwischenseite mit Gebaeude-Auswahl)
+- Neuer Unterpunkt "Alle Rechner" als Uebersichtsseite
+
+### Schritt 5: Hook `useCalculatorApps`
+
+Neuer Hook zum Laden der Rechner-Apps:
+
+- Laed die aktiven Rechner aus der `calculator_apps`-Tabelle
+- Stellt eine Funktion `openExternalApp(slug, buildingId?)` bereit
+- Handhabt Token-Erstellung und URL-Aufbau
+- Fallback auf statische Liste, wenn DB nicht erreichbar
+
+### Schritt 6: Einzelner Rechner-Launcher (`/rechner/:slug`)
+
+Zwischenseite fuer externe Rechner:
+
+- Zeigt Name und Beschreibung des Rechners
+- Dropdown mit allen Gebaeuden des Nutzers (aus `buildings`-Tabelle)
+- "Rechner oeffnen"-Button, der den externen Link mit Token und Building-ID oeffnet
+- Hinweis-Text: "Ihre Daten sind in beiden Apps synchronisiert"
+
+## Neue Dateien
+
+| Datei | Zweck |
+|---|---|
+| Migration SQL | Tabelle `calculator_apps` + Seed-Daten |
+| `src/hooks/useCalculatorApps.ts` | Hook fuer Rechner-Daten + Launcher-Logik |
+| `src/pages/rechner/CalculatorHub.tsx` | Uebersicht aller Rechner |
+| `src/pages/rechner/CalculatorLauncher.tsx` | Zwischenseite mit Gebaeude-Auswahl |
+
+## Geaenderte Dateien
+
+| Datei | Aenderung |
+|---|---|
+| `src/components/layout/AppSidebar.tsx` | Dynamische Rechner-Unterpunkte aus DB laden |
+| `src/App.tsx` | Neue Routen `/rechner` und `/rechner/:slug` |
+
+## Sicherheitsaspekte
+
+- Der Token wird nur via URL-Fragment (#) oder kurzlebiger Query-Parameter uebergeben und erscheint nicht in Server-Logs
+- Externe Apps validieren den Token serverseitig ueber `supabase.auth.getUser()`
+- RLS-Policies stellen sicher, dass jeder Nutzer nur seine eigenen Gebaeude sieht -- sowohl in Vermietify als auch in den externen Apps
+- Tokens sind standardmaessig kurzlebig (1 Stunde); die externe App kann bei Bedarf refreshen
+
+## Voraussetzungen auf Seite der externen Apps
+
+Damit die Deep-Link-Integration funktioniert, muessen die externen Rechner-Apps:
+1. Den `token`-URL-Parameter auslesen und via `supabase.auth.setSession()` die Session setzen
+2. Den `building_id`-Parameter auslesen und das entsprechende Gebaeude vorselektieren
+3. Dieselbe Supabase-Instanz (gleiche URL + Anon Key) verwenden
+
+Da du erwaehnt hast, dass alle Apps bereits an dieselbe Datenbank angebunden sind, ist Punkt 3 bereits erfuellt. Punkte 1 und 2 erfordern kleine Anpassungen in den externen Apps (Token-Empfang beim Laden der App).
+
