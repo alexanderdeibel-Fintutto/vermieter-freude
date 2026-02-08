@@ -85,11 +85,17 @@ const navigationItems = [
   { title: "Kalender", url: "/kalender", icon: CalendarDays },
   { title: "Aufgaben", url: "/aufgaben", icon: CheckSquare },
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
-  { title: "CO2-Kosten", url: "/co2", icon: Leaf },
+  { 
+    title: "Rechner", 
+    icon: Calculator,
+    subItems: [
+      { title: "CO₂-Kosten", url: "/co2" },
+    ]
+  },
   { title: "Unterschriften", url: "/unterschriften", icon: PenTool },
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
   { title: "Dokumente", url: "/documents", icon: FileText },
-  { title: "Steuern", url: "/taxes", icon: Calculator },
+  { title: "Steuern", url: "/taxes", icon: Receipt },
   { 
     title: "Kommunikation", 
     icon: MessageSquare,
