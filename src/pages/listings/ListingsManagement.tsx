@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -344,6 +345,7 @@ export default function ListingsManagement() {
   ];
 
   return (
+    <MainLayout title="Inserate" breadcrumbs={[{ label: "Inserate" }]}>
     <div className="space-y-6">
       <PageHeader
         title="Inserate & Portale"
@@ -649,5 +651,6 @@ export default function ListingsManagement() {
         listing={selectedListing}
       />
     </div>
+    </MainLayout>
   );
 }

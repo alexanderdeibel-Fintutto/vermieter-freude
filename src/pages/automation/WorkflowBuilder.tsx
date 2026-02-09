@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -513,13 +514,16 @@ export default function WorkflowBuilder() {
 
   if (workflowLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Laden...</p>
-      </div>
+      <MainLayout title="Workflow laden..." breadcrumbs={[{ label: "Automatisierung", href: "/automatisierung" }, { label: "Laden..." }]}>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Laden...</p>
+        </div>
+      </MainLayout>
     );
   }
 
   return (
+    <MainLayout title={isEditing ? "Workflow bearbeiten" : "Neuer Workflow"} breadcrumbs={[{ label: "Automatisierung", href: "/automatisierung" }, { label: isEditing ? "Bearbeiten" : "Neu" }]}>
     <div className="space-y-6">
       <PageHeader
         title={isEditing ? "Workflow bearbeiten" : "Neuer Workflow"}
@@ -837,5 +841,6 @@ export default function WorkflowBuilder() {
         </CardContent>
       </Card>
     </div>
+    </MainLayout>
   );
 }
