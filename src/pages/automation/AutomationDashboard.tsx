@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -288,6 +289,7 @@ export default function AutomationDashboard() {
   };
 
   return (
+    <MainLayout title="Automatisierung" breadcrumbs={[{ label: "Automatisierung" }]}>
     <div className="space-y-6">
       <PageHeader
         title="Automatisierung"
@@ -442,5 +444,6 @@ export default function AutomationDashboard() {
         </TabsContent>
       </Tabs>
     </div>
+    </MainLayout>
   );
 }
