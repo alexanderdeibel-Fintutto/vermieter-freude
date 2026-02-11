@@ -146,7 +146,7 @@ export default function ContractDetail() {
           }
           actions={
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowEditDialog(true)}>
+              <Button variant="outline" onClick={() => { console.log("Edit button clicked, setting showEditDialog to true"); setShowEditDialog(true); }}>
                 <Edit className="h-4 w-4 mr-2" />
                 Bearbeiten
               </Button>
