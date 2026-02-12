@@ -981,6 +981,78 @@ export type Database = {
           },
         ]
       }
+      ecosystem_apps: {
+        Row: {
+          app_url: string
+          color_from: string
+          color_to: string
+          created_at: string
+          description: string
+          features: string[]
+          free_for_target: string | null
+          icon_emoji: string
+          id: string
+          is_active: boolean
+          name: string
+          price_monthly_cents: number
+          price_yearly_cents: number
+          register_url: string
+          slug: string
+          sort_order: number
+          stripe_price_id_monthly: string | null
+          stripe_price_id_yearly: string | null
+          tagline: string
+          target_audience: string
+          updated_at: string
+        }
+        Insert: {
+          app_url: string
+          color_from?: string
+          color_to?: string
+          created_at?: string
+          description: string
+          features?: string[]
+          free_for_target?: string | null
+          icon_emoji?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_monthly_cents?: number
+          price_yearly_cents?: number
+          register_url: string
+          slug: string
+          sort_order?: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          tagline: string
+          target_audience?: string
+          updated_at?: string
+        }
+        Update: {
+          app_url?: string
+          color_from?: string
+          color_to?: string
+          created_at?: string
+          description?: string
+          features?: string[]
+          free_for_target?: string | null
+          icon_emoji?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_monthly_cents?: number
+          price_yearly_cents?: number
+          register_url?: string
+          slug?: string
+          sort_order?: number
+          stripe_price_id_monthly?: string | null
+          stripe_price_id_yearly?: string | null
+          tagline?: string
+          target_audience?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       elster_certificates: {
         Row: {
           certificate_fingerprint: string
