@@ -280,6 +280,19 @@ Deno.serve(async (req) => {
       sent_at: new Date().toISOString(),
     });
 
+    // Track referral
+    await admin.from("ecosystem_referrals").insert({
+      organization_id: profile.organization_id,
+      referrer_user_id: user.id,
+      app_slug: "mieter-app",
+      app_name: "Fintutto Mieter",
+      invited_email: tenant.email,
+      invited_name: tenantName,
+      invited_tenant_id: tenant_id,
+      channel: "email",
+      status: "sent",
+    });
+
     // Update tenant_unit_access or create if needed (for portal access)
     if (activeLease?.id && unit?.id) {
       // Check if user already exists

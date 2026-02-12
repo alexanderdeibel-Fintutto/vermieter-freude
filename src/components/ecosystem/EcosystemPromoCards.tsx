@@ -1,12 +1,13 @@
+import { useState } from "react";
 import { useEcosystemApps, type EcosystemApp } from "@/hooks/useEcosystemApps";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Send, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EcosystemInviteDialog } from "./EcosystemInviteDialog";
 
 interface EcosystemPromoCardsProps {
-  onInvite?: (app: EcosystemApp) => void;
   compact?: boolean;
 }
 
@@ -15,24 +16,20 @@ function formatPrice(cents: number): string {
   return `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 }
 
-function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite?: (app: EcosystemApp) => void; compact?: boolean }) {
+function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite: (app: EcosystemApp) => void; compact?: boolean }) {
   const isFree = app.price_monthly_cents === 0;
 
   return (
     <Card className="group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      {/* Gradient top bar */}
       <div
         className="h-1.5 w-full"
         style={{ background: `linear-gradient(135deg, ${app.color_from}, ${app.color_to})` }}
       />
-
       <CardContent className={compact ? "p-4" : "p-5"}>
         <div className="flex items-start gap-3 mb-3">
           <div
             className="flex items-center justify-center w-11 h-11 rounded-xl text-xl shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${app.color_from}20, ${app.color_to}20)`,
-            }}
+            style={{ background: `linear-gradient(135deg, ${app.color_from}20, ${app.color_to}20)` }}
           >
             {app.icon_emoji}
           </div>
@@ -51,26 +48,19 @@ function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite?: (ap
           {app.description}
         </p>
 
-        {/* Features */}
         {!compact && (
           <div className="flex flex-wrap gap-1 mb-3">
             {app.features.slice(0, 3).map((f) => (
-              <span
-                key={f}
-                className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
-              >
+              <span key={f} className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                 {f}
               </span>
             ))}
             {app.features.length > 3 && (
-              <span className="text-[10px] text-muted-foreground px-1">
-                +{app.features.length - 3}
-              </span>
+              <span className="text-[10px] text-muted-foreground px-1">+{app.features.length - 3}</span>
             )}
           </div>
         )}
 
-        {/* Price */}
         <div className="flex items-center justify-between mb-3 py-2 px-3 rounded-lg bg-muted/50">
           {isFree ? (
             <div className="flex items-center gap-1.5">
@@ -92,39 +82,28 @@ function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite?: (ap
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 h-8 text-xs"
-            asChild
-          >
+          <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" asChild>
             <a href={app.app_url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3 w-3 mr-1" />
               Öffnen
             </a>
           </Button>
-          {app.target_audience !== "vermieter" && onInvite && (
+          {app.target_audience !== "vermieter" ? (
             <Button
               size="sm"
               className="flex-1 h-8 text-xs"
-              style={{
-                background: `linear-gradient(135deg, ${app.color_from}, ${app.color_to})`,
-              }}
+              style={{ background: `linear-gradient(135deg, ${app.color_from}, ${app.color_to})` }}
               onClick={() => onInvite(app)}
             >
               <Send className="h-3 w-3 mr-1" />
               Einladen
             </Button>
-          )}
-          {app.target_audience === "vermieter" && (
+          ) : (
             <Button
               size="sm"
               className="flex-1 h-8 text-xs"
-              style={{
-                background: `linear-gradient(135deg, ${app.color_from}, ${app.color_to})`,
-              }}
+              style={{ background: `linear-gradient(135deg, ${app.color_from}, ${app.color_to})` }}
               asChild
             >
               <a href={app.register_url} target="_blank" rel="noopener noreferrer">
@@ -139,8 +118,9 @@ function AppCard({ app, onInvite, compact }: { app: EcosystemApp; onInvite?: (ap
   );
 }
 
-export function EcosystemPromoCards({ onInvite, compact }: EcosystemPromoCardsProps) {
+export function EcosystemPromoCards({ compact }: EcosystemPromoCardsProps) {
   const { data: apps, isLoading } = useEcosystemApps();
+  const [inviteApp, setInviteApp] = useState<EcosystemApp | null>(null);
 
   if (isLoading) {
     return (
@@ -163,9 +143,17 @@ export function EcosystemPromoCards({ onInvite, compact }: EcosystemPromoCardsPr
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {apps.map((app) => (
-          <AppCard key={app.id} app={app} onInvite={onInvite} compact={compact} />
+          <AppCard key={app.id} app={app} onInvite={setInviteApp} compact={compact} />
         ))}
       </div>
+
+      {inviteApp && (
+        <EcosystemInviteDialog
+          open={!!inviteApp}
+          onOpenChange={(o) => !o && setInviteApp(null)}
+          app={inviteApp}
+        />
+      )}
     </div>
   );
 }

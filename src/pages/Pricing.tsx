@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PLANS, Plan } from '@/config/plans';
 import { BillingToggle } from '@/components/subscription/BillingToggle';
 import { PricingCard } from '@/components/subscription/PricingCard';
+import { EcosystemPromoCards } from '@/components/ecosystem/EcosystemPromoCards';
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -215,6 +216,11 @@ export default function Pricing() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Fintutto Ecosystem */}
+        <div className="mt-16 max-w-6xl mx-auto">
+          <EcosystemPromoCards />
         </div>
       </main>
     </div>
