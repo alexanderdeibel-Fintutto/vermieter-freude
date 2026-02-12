@@ -24,6 +24,7 @@
  import { useOperatingCosts, BillingStatus } from "@/hooks/useOperatingCosts";
  import { useBuildings } from "@/hooks/useBuildings";
  import { formatCurrency } from "@/lib/utils";
+ import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
  import {
    Plus,
    FileSpreadsheet,
@@ -323,6 +324,8 @@
             )}
           </CardContent>
         </Card>
+
+        <PortalToolPromo maxTools={3} />
       </div>
  
       <ConfirmDialog

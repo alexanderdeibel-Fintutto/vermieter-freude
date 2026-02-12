@@ -25,7 +25,8 @@
    LogOut,
  } from "lucide-react";
  import { useHandover, HandoverProtocol, HandoverStatus } from "@/hooks/useHandover";
- 
+ import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
+
  const statusConfig: Record<HandoverStatus, { label: string; variant: "default" | "secondary" | "outline" | "destructive" }> = {
    planned: { label: "Geplant", variant: "secondary" },
    in_progress: { label: "In Durchführung", variant: "default" },
@@ -244,6 +245,7 @@
          confirmLabel="Löschen"
          destructive
        />
+       <PortalToolPromo maxTools={2} />
      </MainLayout>
    );
  }

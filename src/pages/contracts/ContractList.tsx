@@ -33,7 +33,7 @@ import { format, addMonths, isWithinInterval, startOfMonth, endOfMonth } from "d
 import { de } from "date-fns/locale";
 import { formatCurrency } from "@/lib/utils";
 import { BulkImportDialog } from "@/components/import/BulkImportDialog";
-
+import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
 type ContractStatus = "active" | "terminated" | "expiring" | "expired";
 
 const STATUS_CONFIG: Record<ContractStatus, { label: string; className: string }> = {
@@ -353,6 +353,8 @@ export default function ContractList() {
             </CardContent>
           </Card>
         )}
+
+        <PortalToolPromo maxTools={3} />
       </div>
 
       <BulkImportDialog

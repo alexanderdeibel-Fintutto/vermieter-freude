@@ -14,6 +14,7 @@ import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActi
 import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityFeed";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
+import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
 
 interface DashboardStats {
   totalRent: number;
@@ -400,6 +401,9 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <DashboardQuickActions />
+
+        {/* Portal Tools Promo */}
+        <PortalToolPromo maxTools={4} />
 
         {/* Activity Feed */}
         <DashboardActivityFeed />

@@ -12,6 +12,7 @@ export interface Plan {
     properties: number;
     units: number;
   };
+  portalCredits: number; // -1 = unlimited
   popular?: boolean;
 }
 
@@ -29,11 +30,13 @@ export const PLANS: Plan[] = [
       '5 Einheiten',
       'Basis-Dashboards',
       'E-Mail-Support',
+      '3 Portal-Credits/Monat',
     ],
     limits: {
       properties: 1,
       units: 5,
     },
+    portalCredits: 3,
   },
   {
     id: 'basic',
@@ -49,11 +52,13 @@ export const PLANS: Plan[] = [
       'Alle Dashboards',
       'Dokumentenverwaltung',
       'E-Mail-Support',
+      '10 Portal-Credits/Monat',
     ],
     limits: {
       properties: 3,
       units: 25,
     },
+    portalCredits: 10,
   },
   {
     id: 'pro',
@@ -70,11 +75,13 @@ export const PLANS: Plan[] = [
       'Dokumentenverwaltung',
       'Nebenkostenabrechnung',
       'Prioritäts-Support',
+      '30 Portal-Credits/Monat',
     ],
     limits: {
       properties: 10,
       units: 100,
     },
+    portalCredits: 30,
     popular: true,
   },
   {
@@ -92,11 +99,13 @@ export const PLANS: Plan[] = [
       'API-Zugang',
       'Dedizierter Support',
       'Custom Branding',
+      'Unbegrenzte Portal-Credits',
     ],
     limits: {
       properties: Infinity,
       units: Infinity,
     },
+    portalCredits: -1,
   },
 ];
 
