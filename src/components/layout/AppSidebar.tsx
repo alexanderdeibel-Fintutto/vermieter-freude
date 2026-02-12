@@ -101,9 +101,10 @@ const navigationItems = [
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
   { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
   { 
-    title: "Rechner", 
+    title: "Rechner & Tools", 
     icon: Calculator,
     subItems: [
+      { title: "Alle Tools", url: "/portal" },
       { title: "CO₂-Kosten", url: "/co2" },
     ]
   },

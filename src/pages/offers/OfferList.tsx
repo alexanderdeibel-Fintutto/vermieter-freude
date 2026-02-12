@@ -18,6 +18,7 @@ import { useRentalOffers } from "@/hooks/useRentalOffers";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { formatCurrency } from "@/lib/utils";
+import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   draft: { label: "Entwurf", className: "bg-muted text-muted-foreground" },
@@ -181,6 +182,8 @@ export default function OfferList() {
             </CardContent>
           </Card>
         )}
+
+        <PortalToolPromo maxTools={2} />
       </div>
     </MainLayout>
   );

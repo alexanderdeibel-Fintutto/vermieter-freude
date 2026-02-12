@@ -14,6 +14,7 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { IndexAdjustmentDialog } from "@/components/rent/IndexAdjustmentDialog";
 import { StaffelRentTab } from "@/components/rent/StaffelRentTab";
 import { RentIncreaseTab } from "@/components/rent/RentIncreaseTab";
+import { PortalToolPromo } from "@/components/portal/PortalToolPromo";
 
 export default function RentAdjustments() {
   const [activeTab, setActiveTab] = useState("index");
@@ -383,6 +384,8 @@ export default function RentAdjustments() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <PortalToolPromo maxTools={3} />
 
       {selectedCandidate && (
         <IndexAdjustmentDialog

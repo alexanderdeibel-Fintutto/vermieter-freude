@@ -136,6 +136,9 @@ import CalendarPage from "./pages/calendar/CalendarPage";
  // Ecosystem Pages
  import ReferralDashboard from "./pages/ecosystem/ReferralDashboard";
 
+ // Portal Pages
+ import PortalHub from "./pages/portal/PortalHub";
+
  import { AIAssistant } from "./components/ai/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -469,6 +472,11 @@ const App = () => (
             <Route path="/empfehlungen" element={
               <ProtectedRoute>
                 <ReferralDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/portal" element={
+              <ProtectedRoute>
+                <PortalHub />
               </ProtectedRoute>
             } />
             <Route path="/benachrichtigungen" element={
