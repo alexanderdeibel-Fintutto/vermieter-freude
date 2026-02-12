@@ -12,12 +12,13 @@
  import type { WizardData } from "../ContractWizard";
  import { formatCurrency } from "@/lib/utils";
  
- interface StepConditionsProps {
-   data: WizardData;
-   updateData: (updates: Partial<WizardData>) => void;
- }
+  interface StepConditionsProps {
+    data: WizardData;
+    updateData: (updates: Partial<WizardData>) => void;
+    showValidation?: boolean;
+  }
  
- export function StepConditions({ data, updateData }: StepConditionsProps) {
+ export function StepConditions({ data, updateData, showValidation }: StepConditionsProps) {
    const totalRent = data.rentAmount + data.utilityAdvance;
  
    return (
@@ -40,13 +41,17 @@
          <CardContent>
            <div className="grid gap-4 md:grid-cols-3">
              <div className="space-y-2">
-               <Label htmlFor="startDate">Mietbeginn *</Label>
-               <Input
-                 id="startDate"
-                 type="date"
-                 value={data.startDate}
-                 onChange={(e) => updateData({ startDate: e.target.value })}
-               />
+                <Label htmlFor="startDate">Mietbeginn *</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={data.startDate}
+                  onChange={(e) => updateData({ startDate: e.target.value })}
+                  className={showValidation && !data.startDate ? "border-destructive" : ""}
+                />
+                {showValidation && !data.startDate && (
+                  <p className="text-xs text-destructive">Pflichtfeld</p>
+                )}
              </div>
              
              <div className="space-y-2">
@@ -100,16 +105,19 @@
                <Label htmlFor="rentAmount">Kaltmiete (€) *</Label>
                <div className="relative">
                  <Euro className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                 <Input
-                   id="rentAmount"
-                   type="number"
-                   min="0"
-                   step="0.01"
-                   value={data.rentAmount || ""}
-                   onChange={(e) => updateData({ rentAmount: Number(e.target.value) })}
-                   className="pl-9"
-                 />
-               </div>
+                  <Input
+                    id="rentAmount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={data.rentAmount || ""}
+                    onChange={(e) => updateData({ rentAmount: Number(e.target.value) })}
+                    className={`pl-9 ${showValidation && !(data.rentAmount > 0) ? "border-destructive" : ""}`}
+                  />
+                </div>
+                {showValidation && !(data.rentAmount > 0) && (
+                  <p className="text-xs text-destructive">Pflichtfeld</p>
+                )}
              </div>
              
              <div className="space-y-2">
