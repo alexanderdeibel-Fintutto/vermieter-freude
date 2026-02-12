@@ -1053,6 +1053,72 @@ export type Database = {
         }
         Relationships: []
       }
+      ecosystem_referrals: {
+        Row: {
+          app_name: string
+          app_slug: string
+          channel: string
+          clicked_at: string | null
+          created_at: string
+          id: string
+          invited_email: string
+          invited_name: string | null
+          invited_tenant_id: string | null
+          organization_id: string
+          referrer_user_id: string
+          registered_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          app_name: string
+          app_slug: string
+          channel?: string
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          invited_email: string
+          invited_name?: string | null
+          invited_tenant_id?: string | null
+          organization_id: string
+          referrer_user_id: string
+          registered_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          app_name?: string
+          app_slug?: string
+          channel?: string
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          invited_email?: string
+          invited_name?: string | null
+          invited_tenant_id?: string | null
+          organization_id?: string
+          referrer_user_id?: string
+          registered_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_referrals_invited_tenant_id_fkey"
+            columns: ["invited_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecosystem_referrals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       elster_certificates: {
         Row: {
           certificate_fingerprint: string

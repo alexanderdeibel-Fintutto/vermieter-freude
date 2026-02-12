@@ -13,6 +13,7 @@ import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist
 import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { DashboardActivityFeed } from "@/components/dashboard/DashboardActivityFeed";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 
 interface DashboardStats {
   totalRent: number;
@@ -402,6 +403,9 @@ export default function Dashboard() {
 
         {/* Activity Feed */}
         <DashboardActivityFeed />
+
+        {/* Fintutto Ecosystem Cross-Sell */}
+        <EcosystemPromoCards />
       </div>
     </MainLayout>
   );
