@@ -37,6 +37,11 @@ function WizardContent() {
    const handleNext = () => {
      if (currentStep < STEPS.length && isStepValid(currentStep)) {
        setCurrentStep(currentStep + 1);
+     } else if (!isStepValid(currentStep)) {
+       // Show validation feedback - the context handles step-specific validation
+       import("sonner").then(({ toast }) => {
+         toast.error("Bitte füllen Sie alle Pflichtfelder aus, bevor Sie fortfahren.");
+       });
      }
    };
 
@@ -145,10 +150,10 @@ function WizardContent() {
              </Button>
 
              {currentStep < STEPS.length ? (
-               <Button onClick={handleNext} disabled={!isStepValid(currentStep)}>
-                 Weiter
-                 <ChevronRight className="h-4 w-4 ml-2" />
-               </Button>
+                <Button onClick={handleNext}>
+                  Weiter
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
              ) : (
                <Button disabled>
                  Abrechnung erstellen

@@ -29,9 +29,10 @@ import type { WizardData } from "../ContractWizard";
 interface StepTenantProps {
   data: WizardData;
   updateData: (updates: Partial<WizardData>) => void;
+  showValidation?: boolean;
 }
 
-export function StepTenant({ data, updateData }: StepTenantProps) {
+export function StepTenant({ data, updateData, showValidation }: StepTenantProps) {
   const { useTenantsList } = useTenants();
   const { data: tenants } = useTenantsList();
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,7 +134,7 @@ export function StepTenant({ data, updateData }: StepTenantProps) {
             </div>
 
             <Select value={data.tenantId} onValueChange={handleTenantSelect}>
-              <SelectTrigger>
+              <SelectTrigger className={showValidation && data.tenantMode === "existing" && !data.tenantId ? "border-destructive" : ""}>
                 <SelectValue placeholder="Mieter auswählen" />
               </SelectTrigger>
               <SelectContent>
@@ -281,6 +282,7 @@ export function StepTenant({ data, updateData }: StepTenantProps) {
                   value={data.newTenant.firstName}
                   onChange={(e) => handleNewTenantChange("firstName", e.target.value)}
                   placeholder="Max"
+                  className={showValidation && data.tenantMode === "new" && !data.newTenant.firstName ? "border-destructive" : ""}
                 />
               </div>
 
@@ -291,6 +293,7 @@ export function StepTenant({ data, updateData }: StepTenantProps) {
                   value={data.newTenant.lastName}
                   onChange={(e) => handleNewTenantChange("lastName", e.target.value)}
                   placeholder="Mustermann"
+                  className={showValidation && data.tenantMode === "new" && !data.newTenant.lastName ? "border-destructive" : ""}
                 />
               </div>
 
@@ -298,13 +301,13 @@ export function StepTenant({ data, updateData }: StepTenantProps) {
                 <Label htmlFor="email">E-Mail *</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
+                    <Input
                     id="email"
                     type="email"
                     value={data.newTenant.email}
                     onChange={(e) => handleNewTenantChange("email", e.target.value)}
                     placeholder="max@beispiel.de"
-                    className="pl-9"
+                    className={`pl-9 ${showValidation && data.tenantMode === "new" && !data.newTenant.email ? "border-destructive" : ""}`}
                   />
                 </div>
               </div>

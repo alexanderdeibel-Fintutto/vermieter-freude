@@ -113,7 +113,8 @@
    
    const [currentStep, setCurrentStep] = useState(1);
    const [data, setData] = useState<WizardData>(initialData);
-   const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showValidation, setShowValidation] = useState(false);
  
    const updateData = useCallback((updates: Partial<WizardData>) => {
      setData((prev) => ({ ...prev, ...updates }));
@@ -140,17 +141,56 @@
      }
    }, [currentStep, data]);
  
-   const handleNext = () => {
-     if (currentStep < 5 && canProceed()) {
-       setCurrentStep((prev) => prev + 1);
-     }
-   };
+    const getValidationMessages = useCallback((): string[] => {
+      const messages: string[] = [];
+      switch (currentStep) {
+        case 1:
+          if (!data.buildingId) messages.push("Gebäude");
+          if (!data.unitId) messages.push("Einheit");
+          break;
+        case 2:
+          if (data.tenantMode === "existing") {
+            if (!data.tenantId) messages.push("Mieter");
+          } else {
+            if (!data.newTenant.firstName) messages.push("Vorname");
+            if (!data.newTenant.lastName) messages.push("Nachname");
+            if (!data.newTenant.email) messages.push("E-Mail");
+          }
+          break;
+        case 3:
+          if (!data.startDate) messages.push("Mietbeginn");
+          if (!(data.rentAmount > 0)) messages.push("Kaltmiete");
+          break;
+        case 5:
+          if (!data.confirmed) messages.push("Bestätigung");
+          break;
+      }
+      return messages;
+    }, [currentStep, data]);
+
+    const handleNext = () => {
+      if (currentStep < 5 && canProceed()) {
+        setShowValidation(false);
+        setCurrentStep((prev) => prev + 1);
+      } else if (!canProceed()) {
+        setShowValidation(true);
+        const missing = getValidationMessages();
+        if (missing.length > 0) {
+          toast({
+            title: "Pflichtfelder fehlen",
+            description: `Bitte füllen Sie aus: ${missing.join(", ")}`,
+            variant: "destructive",
+          });
+        }
+      }
+    };
  
-   const handleBack = () => {
-     if (currentStep > 1) {
-       setCurrentStep((prev) => prev - 1);
-     }
-   };
+    const handleBack = () => {
+      if (currentStep > 1) {
+        setShowValidation(false);
+        setCurrentStep((prev) => prev - 1);
+      }
+    };
  
    const handleSubmit = async () => {
      if (!profile?.organization_id) {
@@ -295,21 +335,21 @@
        {/* Step Content */}
        <Card>
          <CardContent className="py-6">
-           {currentStep === 1 && (
-             <StepProperty data={data} updateData={updateData} />
-           )}
-           {currentStep === 2 && (
-             <StepTenant data={data} updateData={updateData} />
-           )}
-           {currentStep === 3 && (
-             <StepConditions data={data} updateData={updateData} />
-           )}
-           {currentStep === 4 && (
-             <StepAgreements data={data} updateData={updateData} />
-           )}
-           {currentStep === 5 && (
-             <StepSummary data={data} updateData={updateData} />
-           )}
+            {currentStep === 1 && (
+              <StepProperty data={data} updateData={updateData} showValidation={showValidation} />
+            )}
+            {currentStep === 2 && (
+              <StepTenant data={data} updateData={updateData} showValidation={showValidation} />
+            )}
+            {currentStep === 3 && (
+              <StepConditions data={data} updateData={updateData} showValidation={showValidation} />
+            )}
+            {currentStep === 4 && (
+              <StepAgreements data={data} updateData={updateData} />
+            )}
+            {currentStep === 5 && (
+              <StepSummary data={data} updateData={updateData} />
+            )}
          </CardContent>
        </Card>
  
@@ -324,11 +364,11 @@
            Zurück
          </Button>
          
-         {currentStep < 5 ? (
-           <Button onClick={handleNext} disabled={!canProceed()}>
-             Weiter
-             <ChevronRight className="h-4 w-4 ml-2" />
-           </Button>
+          {currentStep < 5 ? (
+            <Button onClick={handleNext}>
+              Weiter
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
          ) : (
            <Button
              onClick={handleSubmit}

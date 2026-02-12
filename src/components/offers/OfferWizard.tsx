@@ -99,6 +99,7 @@ export function OfferWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<OfferWizardData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   const updateData = useCallback((updates: Partial<OfferWizardData>) => {
     setData((prev) => {
@@ -265,11 +266,32 @@ export function OfferWizard() {
 
       {/* Navigation */}
       <div className="flex justify-between">
-        <Button variant="outline" onClick={() => setCurrentStep((s) => s - 1)} disabled={currentStep === 1}>
+        <Button variant="outline" onClick={() => { setShowValidation(false); setCurrentStep((s) => s - 1); }} disabled={currentStep === 1}>
           <ChevronLeft className="h-4 w-4 mr-2" /> Zurück
         </Button>
         {currentStep < 4 ? (
-          <Button onClick={() => setCurrentStep((s) => s + 1)} disabled={!canProceed()}>
+          <Button onClick={() => {
+            if (canProceed()) {
+              setShowValidation(false);
+              setCurrentStep((s) => s + 1);
+            } else {
+              setShowValidation(true);
+              const missing: string[] = [];
+              if (currentStep === 1) {
+                if (!data.buildingId) missing.push("Gebäude");
+                if (!data.unitId) missing.push("Einheit");
+              } else if (currentStep === 2) {
+                if (!data.firstName) missing.push("Vorname");
+                if (!data.lastName) missing.push("Nachname");
+              } else if (currentStep === 3) {
+                if (!(data.rentAmountCents > 0)) missing.push("Kaltmiete");
+                if (!data.proposedStartDate) missing.push("Einzugsdatum");
+              }
+              if (missing.length > 0) {
+                toast({ title: "Pflichtfelder fehlen", description: `Bitte füllen Sie aus: ${missing.join(", ")}`, variant: "destructive" });
+              }
+            }
+          }}>
             Weiter <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
         ) : (

@@ -15,12 +15,13 @@
  import type { WizardData } from "../ContractWizard";
  import { formatCurrency } from "@/lib/utils";
  
- interface StepPropertyProps {
-   data: WizardData;
-   updateData: (updates: Partial<WizardData>) => void;
- }
+interface StepPropertyProps {
+    data: WizardData;
+    updateData: (updates: Partial<WizardData>) => void;
+    showValidation?: boolean;
+  }
  
- export function StepProperty({ data, updateData }: StepPropertyProps) {
+ export function StepProperty({ data, updateData, showValidation }: StepPropertyProps) {
    const { useBuildingsList } = useBuildings();
    const { useUnitsList } = useUnits();
    
@@ -65,14 +66,17 @@
        <div className="grid gap-6 md:grid-cols-2">
          {/* Building Selection */}
          <div className="space-y-2">
-           <Label htmlFor="building">Gebäude</Label>
+            <Label htmlFor="building">Gebäude *</Label>
+            {showValidation && !data.buildingId && (
+              <p className="text-xs text-destructive">Bitte Gebäude auswählen</p>
+            )}
            <Select
              value={data.buildingId}
              onValueChange={(value) => updateData({ buildingId: value })}
            >
-             <SelectTrigger id="building">
-               <SelectValue placeholder="Gebäude auswählen" />
-             </SelectTrigger>
+              <SelectTrigger id="building" className={showValidation && !data.buildingId ? "border-destructive" : ""}>
+                <SelectValue placeholder="Gebäude auswählen" />
+              </SelectTrigger>
              <SelectContent>
                {buildings.map((building: any) => (
                  <SelectItem key={building.id} value={building.id}>
@@ -88,15 +92,18 @@
  
          {/* Unit Selection */}
          <div className="space-y-2">
-           <Label htmlFor="unit">Einheit</Label>
+            <Label htmlFor="unit">Einheit *</Label>
+            {showValidation && !data.unitId && (
+              <p className="text-xs text-destructive">Bitte Einheit auswählen</p>
+            )}
            <Select
              value={data.unitId}
              onValueChange={(value) => updateData({ unitId: value })}
              disabled={!data.buildingId}
            >
-             <SelectTrigger id="unit">
-               <SelectValue placeholder={data.buildingId ? "Einheit auswählen" : "Erst Gebäude wählen"} />
-             </SelectTrigger>
+              <SelectTrigger id="unit" className={showValidation && !data.unitId ? "border-destructive" : ""}>
+                <SelectValue placeholder={data.buildingId ? "Einheit auswählen" : "Erst Gebäude wählen"} />
+              </SelectTrigger>
              <SelectContent>
                {availableUnits.length === 0 ? (
                  <div className="p-2 text-sm text-muted-foreground text-center">
