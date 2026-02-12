@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, CheckCircle, Circle, Euro, MapPin, Calendar, Zap, Clock } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import { EcosystemPromoCards } from "@/components/ecosystem/EcosystemPromoCards";
 
 type BuildingRow = Database["public"]["Tables"]["buildings"]["Row"];
 type UnitRow = Database["public"]["Tables"]["units"]["Row"];
@@ -163,6 +164,9 @@ export function BuildingOverviewTab({ building }: BuildingOverviewTabProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Fintutto Ecosystem Cross-Sell */}
+      <EcosystemPromoCards />
     </div>
   );
 }
