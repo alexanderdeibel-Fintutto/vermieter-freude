@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { StatCard } from "@/components/shared/StatCard";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -13,337 +20,381 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Mail,
-  MessageSquare,
-  FileText,
   Send,
-  MailOpen,
-  Reply,
-  TrendingUp,
-  Calendar,
-  Download,
-  Users,
+  Eye,
+  MessageSquare,
   Clock,
-  CheckCircle,
-  AlertCircle,
+  Mail,
+  FileText,
+  Globe,
+  TrendingUp,
+  BarChart3,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import { format, subDays } from "date-fns";
-import { de } from "date-fns/locale";
 
-const COLORS = ["hsl(var(--primary))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
-
-// Mock channel breakdown data
-const channelData = [
-  { name: "E-Mail", value: 65, color: "hsl(var(--primary))" },
-  { name: "WhatsApp", value: 25, color: "#10b981" },
-  { name: "Brief", value: 10, color: "#f59e0b" },
+const KPI_DATA = [
+  {
+    title: "Gesendete Nachrichten",
+    value: "1.284",
+    change: "+12%",
+    trend: "up" as const,
+    icon: Send,
+    description: "Diesen Monat",
+  },
+  {
+    title: "Öffnungsrate",
+    value: "68,4%",
+    change: "+3,2%",
+    trend: "up" as const,
+    icon: Eye,
+    description: "Durchschnitt",
+  },
+  {
+    title: "Antwortrate",
+    value: "42,1%",
+    change: "-1,5%",
+    trend: "down" as const,
+    icon: MessageSquare,
+    description: "Durchschnitt",
+  },
+  {
+    title: "Durchschn. Antwortzeit",
+    value: "4,2 Std",
+    change: "-0,8 Std",
+    trend: "up" as const,
+    icon: Clock,
+    description: "Schneller als letzter Monat",
+  },
 ];
 
-// Mock monthly send volume
-const monthlyVolume = Array.from({ length: 6 }, (_, i) => ({
-  month: format(subDays(new Date(), (5 - i) * 30), "MMM", { locale: de }),
-  email: Math.floor(Math.random() * 40) + 20,
-  whatsapp: Math.floor(Math.random() * 20) + 5,
-  letter: Math.floor(Math.random() * 8) + 2,
-}));
+const CHANNEL_DATA = [
+  {
+    channel: "Email",
+    icon: Mail,
+    sent: 892,
+    openRate: "72%",
+    responseRate: "38%",
+    color: "bg-blue-100 text-blue-800",
+  },
+  {
+    channel: "Brief",
+    icon: FileText,
+    sent: 156,
+    openRate: "-",
+    responseRate: "22%",
+    color: "bg-orange-100 text-orange-800",
+  },
+  {
+    channel: "Portal",
+    icon: Globe,
+    sent: 236,
+    openRate: "89%",
+    responseRate: "64%",
+    color: "bg-green-100 text-green-800",
+  },
+];
 
-// Mock recent activity log
-const recentActivity = [
+const RECENT_ACTIVITY = [
   {
     id: "1",
-    type: "email" as const,
-    description: "Nebenkostenabrechnung an Familie Müller gesendet",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    type: "email",
+    recipient: "Müller, Anna",
+    subject: "Nebenkostenabrechnung 2025",
     status: "delivered",
+    date: "15.02.2026 10:30",
   },
   {
     id: "2",
-    type: "whatsapp" as const,
-    description: "Wartungshinweis an Thomas Klein gelesen",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-    status: "read",
+    type: "email",
+    recipient: "Schmidt, Thomas",
+    subject: "Mieterhöhung zum 01.04.2026",
+    status: "opened",
+    date: "15.02.2026 09:15",
   },
   {
     id: "3",
-    type: "email" as const,
-    description: "Mieterhöhung an Peter Fischer geöffnet",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    status: "opened",
+    type: "portal",
+    recipient: "Weber, Lisa",
+    subject: "Wartungsarbeiten Heizungsanlage",
+    status: "read",
+    date: "14.02.2026 16:45",
   },
   {
     id: "4",
-    type: "letter" as const,
-    description: "Kündigung an Anna Weber generiert",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-    status: "generated",
+    type: "letter",
+    recipient: "Fischer, Markus",
+    subject: "Mängelanzeige - Stellungnahme",
+    status: "sent",
+    date: "14.02.2026 14:20",
   },
   {
     id: "5",
-    type: "email" as const,
-    description: "Erinnerung Mietzahlung an Maria Bauer zugestellt",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    type: "email",
+    recipient: "Braun, Susanne",
+    subject: "Bestätigung Mietvertragsverlängerung",
     status: "delivered",
+    date: "14.02.2026 11:00",
   },
   {
     id: "6",
-    type: "whatsapp" as const,
-    description: "Bestätigung Besichtigungstermin an Max Schmidt",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    status: "sent",
+    type: "portal",
+    recipient: "Klein, Peter",
+    subject: "Zählerstandsmeldung Erinnerung",
+    status: "read",
+    date: "13.02.2026 09:30",
   },
   {
     id: "7",
-    type: "email" as const,
-    description: "Massenversand: Wartungsarbeiten Info fehlgeschlagen",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
-    status: "failed",
-  },
-  {
-    id: "8",
-    type: "email" as const,
-    description: "Willkommensmail an neue Mieterin Lisa Wagner",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    status: "delivered",
+    type: "email",
+    recipient: "Hoffmann, Maria",
+    subject: "Mietbescheinigung 2025",
+    status: "bounced",
+    date: "13.02.2026 08:15",
   },
 ];
 
-const TYPE_ICONS = {
-  email: Mail,
-  whatsapp: MessageSquare,
-  letter: FileText,
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  sent: { label: "Gesendet", className: "bg-blue-100 text-blue-800" },
+  delivered: { label: "Zugestellt", className: "bg-green-100 text-green-800" },
+  opened: { label: "Geöffnet", className: "bg-purple-100 text-purple-800" },
+  read: { label: "Gelesen", className: "bg-emerald-100 text-emerald-800" },
+  bounced: { label: "Fehlgeschlagen", className: "bg-red-100 text-red-800" },
 };
 
-const STATUS_STYLES: Record<string, { label: string; color: string }> = {
-  sent: { label: "Gesendet", color: "bg-blue-100 text-blue-800" },
-  delivered: { label: "Zugestellt", color: "bg-green-100 text-green-800" },
-  opened: { label: "Geöffnet", color: "bg-purple-100 text-purple-800" },
-  read: { label: "Gelesen", color: "bg-emerald-100 text-emerald-800" },
-  generated: { label: "Erstellt", color: "bg-gray-100 text-gray-800" },
-  failed: { label: "Fehlgeschlagen", color: "bg-red-100 text-red-800" },
+const TYPE_ICON: Record<string, typeof Mail> = {
+  email: Mail,
+  letter: FileText,
+  portal: Globe,
 };
+
+const MONTHS = [
+  { label: "Jan", value: 45 },
+  { label: "Feb", value: 62 },
+  { label: "Mär", value: 58 },
+  { label: "Apr", value: 71 },
+  { label: "Mai", value: 85 },
+  { label: "Jun", value: 92 },
+  { label: "Jul", value: 78 },
+  { label: "Aug", value: 65 },
+  { label: "Sep", value: 88 },
+  { label: "Okt", value: 95 },
+  { label: "Nov", value: 102 },
+  { label: "Dez", value: 110 },
+];
 
 export default function CommunicationAnalytics() {
-  const [period, setPeriod] = useState("6m");
+  const [timeRange, setTimeRange] = useState("month");
 
-  // Mock KPI values
-  const totalSent = 342;
-  const openRate = 82;
-  const responseRate = 45;
-  const avgDeliveryTime = "1.2 Min";
+  const maxValue = Math.max(...MONTHS.map((m) => m.value));
 
   return (
-    <MainLayout title="Kommunikationsanalyse">
+    <MainLayout
+      title="Kommunikations-Analyse"
+      breadcrumbs={[
+        { label: "Kommunikation", href: "/kommunikation" },
+        { label: "Analyse" },
+      ]}
+    >
       <div className="space-y-6">
         <PageHeader
-          title="Kommunikationsanalyse"
-          subtitle="Auswertung aller Kommunikationskanäle und Kampagnen"
-          breadcrumbs={[
-            { label: "Kommunikation", href: "/kommunikation" },
-            { label: "Analytics" },
-          ]}
+          title="Kommunikations-Analyse"
+          subtitle="Auswertung und Statistiken Ihrer Mieterkommunikation."
           actions={
-            <div className="flex items-center gap-2">
-              <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-36">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1m">1 Monat</SelectItem>
-                  <SelectItem value="3m">3 Monate</SelectItem>
-                  <SelectItem value="6m">6 Monate</SelectItem>
-                  <SelectItem value="12m">12 Monate</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Exportieren
-              </Button>
-            </div>
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">Diese Woche</SelectItem>
+                <SelectItem value="month">Dieser Monat</SelectItem>
+                <SelectItem value="quarter">Dieses Quartal</SelectItem>
+                <SelectItem value="year">Dieses Jahr</SelectItem>
+              </SelectContent>
+            </Select>
           }
         />
 
         {/* KPI Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Nachrichten gesendet"
-            value={totalSent}
-            icon={Send}
-            trend={{ value: 12, isPositive: true }}
-            description="Im gewählten Zeitraum"
-          />
-          <StatCard
-            title="Öffnungsrate"
-            value={`${openRate}%`}
-            icon={MailOpen}
-            trend={{ value: 3.2, isPositive: true }}
-            description="E-Mail-Kampagnen"
-          />
-          <StatCard
-            title="Antwortrate"
-            value={`${responseRate}%`}
-            icon={Reply}
-            trend={{ value: 1.5, isPositive: true }}
-            description="Direkte Antworten"
-          />
-          <StatCard
-            title="Zustellzeit"
-            value={avgDeliveryTime}
-            icon={Clock}
-            description="Durchschnittlich"
-          />
+          {KPI_DATA.map((kpi) => {
+            const Icon = kpi.icon;
+            const TrendIcon = kpi.trend === "up" ? ArrowUpRight : ArrowDownRight;
+            const trendColor =
+              kpi.title === "Durchschn. Antwortzeit"
+                ? kpi.trend === "up"
+                  ? "text-green-600"
+                  : "text-red-600"
+                : kpi.trend === "up"
+                ? "text-green-600"
+                : "text-red-600";
+            return (
+              <Card key={kpi.title}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className={`flex items-center gap-1 text-sm ${trendColor}`}>
+                      <TrendIcon className="h-4 w-4" />
+                      {kpi.change}
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold">{kpi.value}</p>
+                  <p className="text-sm text-muted-foreground">{kpi.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{kpi.description}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Channel Breakdown */}
+        {/* Charts Section */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Message Volume Chart */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Kanalverteilung
+                <BarChart3 className="h-5 w-5" />
+                Nachrichtenvolumen
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64 flex items-center">
-                <ResponsiveContainer width="55%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={channelData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      paddingAngle={4}
-                      dataKey="value"
-                    >
-                      {channelData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => `${value}%`} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-4 flex-1">
-                  {channelData.map((item) => (
-                    <div key={item.name} className="flex items-center gap-3">
+              <div className="space-y-4">
+                <div className="flex items-end gap-2 h-48">
+                  {MONTHS.map((month) => (
+                    <div key={month.label} className="flex-1 flex flex-col items-center gap-1">
                       <div
-                        className="h-3 w-3 rounded-full shrink-0"
-                        style={{ backgroundColor: item.color }}
+                        className="w-full bg-primary/80 rounded-t-sm transition-all hover:bg-primary min-h-[4px]"
+                        style={{ height: `${(month.value / maxValue) * 100}%` }}
                       />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.value}%</p>
-                      </div>
+                      <span className="text-xs text-muted-foreground">{month.label}</span>
                     </div>
                   ))}
+                </div>
+                <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-3">
+                  <span>Gesamt: {MONTHS.reduce((sum, m) => sum + m.value, 0)} Nachrichten</span>
+                  <span>
+                    Durchschnitt: {Math.round(MONTHS.reduce((sum, m) => sum + m.value, 0) / 12)}/Monat
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Monthly Send Volume */}
+          {/* Channel Breakdown */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Send className="h-5 w-5" />
-                Versandvolumen
+                <TrendingUp className="h-5 w-5" />
+                Kanal-Aufschlüsselung
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyVolume}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar
-                      dataKey="email"
-                      name="E-Mail"
-                      fill="hsl(var(--primary))"
-                      radius={[4, 4, 0, 0]}
-                      stackId="a"
-                    />
-                    <Bar
-                      dataKey="whatsapp"
-                      name="WhatsApp"
-                      fill="#10b981"
-                      radius={[0, 0, 0, 0]}
-                      stackId="a"
-                    />
-                    <Bar
-                      dataKey="letter"
-                      name="Brief"
-                      fill="#f59e0b"
-                      radius={[4, 4, 0, 0]}
-                      stackId="a"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="space-y-4">
+                {CHANNEL_DATA.map((channel) => {
+                  const Icon = channel.icon;
+                  const totalSent = CHANNEL_DATA.reduce((sum, c) => sum + c.sent, 0);
+                  const percentage = Math.round((channel.sent / totalSent) * 100);
+                  return (
+                    <div key={channel.channel} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{channel.channel}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {channel.sent} gesendet
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="outline" className={channel.color}>
+                            {percentage}%
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                      <div className="flex gap-4 text-xs text-muted-foreground">
+                        <span>Öffnungsrate: {channel.openRate}</span>
+                        <span>Antwortrate: {channel.responseRate}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Activity Log */}
+        {/* Recent Communication Activity */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Letzte Aktivitäten
+              <MessageSquare className="h-5 w-5" />
+              Letzte Kommunikationsaktivität
             </CardTitle>
-            <CardDescription>Chronologische Übersicht aller Kommunikationsereignisse</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentActivity.map((activity) => {
-                const TypeIcon = TYPE_ICONS[activity.type];
-                const status = STATUS_STYLES[activity.status];
-                const timeAgo = getTimeAgo(activity.timestamp);
-                return (
-                  <div
-                    key={activity.id}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                      <TypeIcon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm">{activity.description}</p>
-                      <p className="text-xs text-muted-foreground">{timeAgo}</p>
-                    </div>
-                    <Badge className={`${status.color} shrink-0`}>{status.label}</Badge>
-                  </div>
-                );
-              })}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kanal</TableHead>
+                  <TableHead>Empfänger</TableHead>
+                  <TableHead>Betreff</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Datum</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {RECENT_ACTIVITY.map((activity) => {
+                  const TypeIcon = TYPE_ICON[activity.type] || Mail;
+                  const statusConfig = STATUS_CONFIG[activity.status] || STATUS_CONFIG.sent;
+                  return (
+                    <TableRow key={activity.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            {activity.type === "portal"
+                              ? "Portal"
+                              : activity.type === "letter"
+                              ? "Brief"
+                              : "E-Mail"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium text-sm">
+                        {activity.recipient}
+                      </TableCell>
+                      <TableCell className="text-sm max-w-[250px] truncate">
+                        {activity.subject}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={statusConfig.className}>
+                          {statusConfig.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {activity.date}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>
     </MainLayout>
   );
-}
-
-function getTimeAgo(timestamp: string): string {
-  const diff = Date.now() - new Date(timestamp).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return `Vor ${minutes} Minuten`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Vor ${hours} Stunden`;
-  const days = Math.floor(hours / 24);
-  return `Vor ${days} Tagen`;
 }
