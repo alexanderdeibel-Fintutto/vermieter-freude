@@ -170,5 +170,160 @@
       "tenant": "First Tenant",
       "complete": "Complete"
     }
+  },
+  "tax": {
+    "title": "Taxes",
+    "dashboard": "Tax Dashboard",
+    "declarations": "Tax Declarations",
+    "deductions": "Deductions",
+    "deadlines": "Deadlines",
+    "scenarios": "Scenarios",
+    "optimization": "Optimization",
+    "formLibrary": "Form Library",
+    "compliance": "Compliance",
+    "export": "Export",
+    "datev": "DATEV Sync",
+    "crossBorder": "Cross-Border",
+    "anlageV": "Anlage V",
+    "anlageKAP": "Anlage KAP",
+    "anlageSO": "Anlage SO",
+    "countries": {
+      "DE": "Germany",
+      "AT": "Austria",
+      "CH": "Switzerland"
+    },
+    "status": {
+      "not_started": "Not Started",
+      "in_progress": "In Progress",
+      "ready": "Ready",
+      "filed": "Filed",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "categories": {
+      "afa": "Depreciation (AfA)",
+      "maintenance": "Maintenance",
+      "insurance": "Insurance",
+      "interest": "Loan Interest",
+      "property_tax": "Property Tax",
+      "management": "Management Costs",
+      "travel": "Travel Costs",
+      "office": "Home Office",
+      "legal": "Legal & Consulting",
+      "advertising": "Advertising",
+      "other": "Other"
+    }
+  },
+  "finance": {
+    "title": "Finances",
+    "dashboard": "Finance Dashboard",
+    "invoices": "Invoices",
+    "newInvoice": "New Invoice",
+    "budget": "Budget",
+    "portfolio": "Portfolio",
+    "wealth": "Wealth",
+    "income": "Income",
+    "expenses": "Expenses",
+    "balance": "Balance",
+    "cashflow": "Cash Flow"
+  },
+  "calculators": {
+    "title": "Calculators",
+    "hub": "All Calculators",
+    "afa": "Depreciation Calculator",
+    "kaufpreis": "Purchase Price Calculator",
+    "rendite": "Yield Calculator",
+    "tilgung": "Mortgage Calculator",
+    "cashflow": "Cash Flow Calculator",
+    "wertentwicklung": "Value Development Calculator"
+  },
+  "admin": {
+    "title": "Administration",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "modules": "Modules",
+    "users": "Users",
+    "organizations": "Organizations"
+  },
+  "compliance": {
+    "title": "Compliance",
+    "dashboard": "Compliance Dashboard",
+    "checklist": "Checklist",
+    "auditReadiness": "Audit Readiness",
+    "score": "Compliance Score",
+    "categories": {
+      "dsgvo": "Data Protection (GDPR)",
+      "tax": "Tax",
+      "building": "Building Safety",
+      "contract": "Contract Law",
+      "energy": "Energy",
+      "fire_safety": "Fire Safety",
+      "accessibility": "Accessibility"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "hub": "Report Center",
+    "builder": "Report Builder",
+    "analytics": "Advanced Analytics",
+    "scheduled": "Scheduled Reports"
+  },
+  "communication": {
+    "title": "Communication",
+    "bulk": "Bulk Messages",
+    "analytics": "Communication Analytics",
+    "templates": "Templates"
+  },
+  "data": {
+    "title": "Data",
+    "importExport": "Import/Export",
+    "universalImport": "Universal Import",
+    "syncConnections": "Sync Connections"
+  },
+  "insurance": {
+    "title": "Insurance",
+    "dashboard": "Insurance Dashboard",
+    "claims": "Claims",
+    "types": {
+      "building": "Building Insurance",
+      "liability": "Liability",
+      "fire": "Fire Insurance",
+      "water": "Water Damage",
+      "glass": "Glass Insurance",
+      "rent_loss": "Rent Loss",
+      "legal": "Legal Protection",
+      "other": "Other"
+    }
+  },
+  "energy": {
+    "title": "Energy",
+    "dashboard": "Energy Dashboard",
+    "passports": "Energy Certificates"
+  },
+  "owners": {
+    "title": "Owners",
+    "list": "Owner List",
+    "detail": "Owner Detail"
+  },
+  "terminations": {
+    "title": "Terminations",
+    "list": "Termination List",
+    "wizard": "New Termination",
+    "types": {
+      "tenant": "Tenant Termination",
+      "landlord": "Landlord Termination",
+      "mutual": "Mutual Agreement"
+    }
+  },
+  "knowledge": {
+    "title": "Knowledge Base",
+    "search": "Search Knowledge"
+  },
+  "tenantPortal": {
+    "community": "Community",
+    "selfService": "Self-Service",
+    "messages": "Messages",
+    "satisfaction": "Satisfaction",
+    "paymentHistory": "Payment History"
   }
 }
