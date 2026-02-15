@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,280 +6,303 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  BookOpen,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Search,
+  BookOpen,
   Scale,
   Receipt,
   Home,
-  Calculator,
-  HelpCircle,
-  ChevronDown,
-  ChevronUp,
+  FileSignature,
+  Zap,
   ExternalLink,
+  HelpCircle,
+  ArrowRight,
+  Lightbulb,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-interface KnowledgeArticle {
-  id: string;
-  title: string;
-  category: string;
-  excerpt: string;
-  content: string;
-  tags: string[];
-}
-
-interface KnowledgeCategory {
-  id: string;
-  label: string;
-  icon: typeof BookOpen;
-  color: string;
-}
-
-const CATEGORIES: KnowledgeCategory[] = [
-  { id: "all", label: "Alle Artikel", icon: BookOpen, color: "text-primary" },
-  { id: "mietrecht", label: "Mietrecht", icon: Scale, color: "text-blue-600" },
-  { id: "steuern", label: "Steuern", icon: Calculator, color: "text-green-600" },
-  { id: "betriebskosten", label: "Betriebskosten", icon: Receipt, color: "text-orange-600" },
-  { id: "hausverwaltung", label: "Hausverwaltung", icon: Home, color: "text-purple-600" },
-  { id: "faq", label: "FAQ", icon: HelpCircle, color: "text-cyan-600" },
+const CATEGORIES = [
+  {
+    id: "mietrecht",
+    title: "Mietrecht",
+    description: "Rechtliche Grundlagen rund um Mietverhältnisse, Kündigungsschutz und Mieterhöhungen.",
+    icon: Scale,
+    articleCount: 24,
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+    iconColor: "text-blue-600",
+  },
+  {
+    id: "steuerrecht",
+    title: "Steuerrecht",
+    description: "Steuerliche Aspekte der Vermietung, AfA, Werbungskosten und Steuererklärungen.",
+    icon: Receipt,
+    articleCount: 18,
+    color: "bg-green-50 text-green-700 border-green-200",
+    iconColor: "text-green-600",
+  },
+  {
+    id: "betriebskosten",
+    title: "Betriebskosten",
+    description: "Nebenkostenabrechnung, umlagefähige Kosten und Abrechnungsfristen.",
+    icon: Home,
+    articleCount: 15,
+    color: "bg-orange-50 text-orange-700 border-orange-200",
+    iconColor: "text-orange-600",
+  },
+  {
+    id: "vertragsrecht",
+    title: "Vertragsrecht",
+    description: "Mietverträge, Klauseln, Sondervereinbarungen und Vertragsänderungen.",
+    icon: FileSignature,
+    articleCount: 21,
+    color: "bg-purple-50 text-purple-700 border-purple-200",
+    iconColor: "text-purple-600",
+  },
+  {
+    id: "energieausweis",
+    title: "Energieausweis",
+    description: "Energetische Anforderungen, Ausweispflicht und Sanierungsmaßnahmen.",
+    icon: Zap,
+    articleCount: 9,
+    color: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    iconColor: "text-yellow-600",
+  },
 ];
 
-const ARTICLES: KnowledgeArticle[] = [
+const FAQ_ITEMS = [
   {
-    id: "1",
-    title: "Kündigungsfristen im Mietrecht",
-    category: "mietrecht",
-    excerpt: "Übersicht über die gesetzlichen Kündigungsfristen für Mieter und Vermieter nach BGB.",
-    content: `Die Kündigungsfristen im deutschen Mietrecht sind in § 573c BGB geregelt.\n\n**Mieter:**\nDer Mieter kann mit einer Frist von 3 Monaten zum Monatsende kündigen, unabhängig von der Mietdauer.\n\n**Vermieter:**\nDie Kündigungsfrist des Vermieters staffelt sich nach der Mietdauer:\n- Bis 5 Jahre: 3 Monate zum Monatsende\n- 5 bis 8 Jahre: 6 Monate zum Monatsende\n- Über 8 Jahre: 9 Monate zum Monatsende\n\n**Sonderkündigungsrecht:**\nBei Mieterhöhungen hat der Mieter ein Sonderkündigungsrecht mit einer Frist von 2 Monaten zum Ende des übernächsten Monats.`,
-    tags: ["Kündigung", "Fristen", "BGB", "§573c"],
+    question: "Wie hoch darf eine Mieterhöhung ausfallen?",
+    answer:
+      "Eine Mieterhöhung bis zur ortsüblichen Vergleichsmiete ist möglich, jedoch darf die Miete innerhalb von drei Jahren nicht um mehr als 20% (in angespannten Wohnungsmärkten 15%) steigen (Kappungsgrenze). Modernisierungsmieterhöhungen können bis zu 8% der Modernisierungskosten jährlich auf die Miete umgelegt werden.",
   },
   {
-    id: "2",
-    title: "Mietpreisbremse - Regelungen und Ausnahmen",
-    category: "mietrecht",
-    excerpt: "Wann gilt die Mietpreisbremse und welche Ausnahmen gibt es?",
-    content: `Die Mietpreisbremse (§ 556d BGB) begrenzt die Miete bei Wiedervermietung auf maximal 10% über der ortsüblichen Vergleichsmiete.\n\n**Gilt in:**\nGebieten mit angespanntem Wohnungsmarkt, die von der Landesregierung per Verordnung bestimmt wurden.\n\n**Ausnahmen:**\n- Neubauwohnungen (erstmalige Vermietung nach 01.10.2014)\n- Umfassend modernisierte Wohnungen\n- Vormiete war bereits höher als die zulässige Miete\n\n**Voraussetzung:**\nDer Vermieter muss vor Vertragsabschluss über die Vormiete oder Modernisierungsmaßnahmen informieren.`,
-    tags: ["Mietpreisbremse", "Wiedervermietung", "§556d"],
+    question: "Welche Kündigungsfristen gelten für Vermieter?",
+    answer:
+      "Die Kündigungsfrist für Vermieter hängt von der Mietdauer ab: Bis 5 Jahre Mietdauer beträgt sie 3 Monate, bis 8 Jahre 6 Monate und ab 8 Jahren 9 Monate. Eine ordentliche Kündigung durch den Vermieter ist nur bei berechtigtem Interesse möglich (z.B. Eigenbedarf, erhebliche Pflichtverletzung).",
   },
   {
-    id: "3",
-    title: "Abschreibung von Immobilien (AfA)",
-    category: "steuern",
-    excerpt: "Steuerliche Abschreibung von Wohngebäuden nach § 7 EStG.",
-    content: `Die Absetzung für Abnutzung (AfA) ermöglicht es Vermietern, die Anschaffungs- oder Herstellungskosten eines Gebäudes steuerlich geltend zu machen.\n\n**Lineare AfA (§ 7 Abs. 4 EStG):**\n- Gebäude nach 31.12.1924: 2% pro Jahr (50 Jahre Nutzungsdauer)\n- Gebäude vor 01.01.1925: 2,5% pro Jahr (40 Jahre Nutzungsdauer)\n\n**Sonder-AfA (§ 7b EStG):**\n- 5% pro Jahr zusätzlich in den ersten 4 Jahren\n- Gilt für Neubauwohnungen unter bestimmten Bedingungen\n\n**Wichtig:**\nNur das Gebäude wird abgeschrieben, nicht der Grundstücksanteil. Der Gebäudeanteil wird typischerweise mit 70-80% der Gesamtkosten angesetzt.`,
-    tags: ["AfA", "Abschreibung", "Steuer", "§7 EStG"],
+    question: "Welche Betriebskosten sind umlagefähig?",
+    answer:
+      "Umlagefähige Betriebskosten sind in der Betriebskostenverordnung (BetrKV) definiert. Dazu gehören u.a.: Grundsteuer, Wasserversorgung, Entwässerung, Heizkosten, Warmwasser, Aufzug, Straßenreinigung, Müllabfuhr, Gebäudereinigung, Gartenpflege, Beleuchtung, Schornsteinreinigung, Sach- und Haftpflichtversicherung, Hauswart und Gemeinschaftsantenne.",
   },
   {
-    id: "4",
-    title: "Werbungskosten bei Vermietung und Verpachtung",
-    category: "steuern",
-    excerpt: "Welche Kosten können Vermieter steuerlich absetzen?",
-    content: `Werbungskosten sind alle Aufwendungen, die der Erzielung von Mieteinnahmen dienen.\n\n**Typische Werbungskosten:**\n- Darlehenszinsen (nicht Tilgung!)\n- Grundsteuer\n- Versicherungsprämien\n- Hausverwaltungskosten\n- Reparatur- und Instandhaltungskosten\n- Fahrtkosten zum Mietobjekt\n- Abschreibung (AfA)\n- Kontoführungsgebühren\n\n**Sofortabzug vs. Abschreibung:**\nReparaturen unter 4.000 € netto können sofort abgesetzt werden. Größere Maßnahmen müssen über die Nutzungsdauer abgeschrieben werden.\n\n**Erhaltungsaufwand:**\nKann auf 2-5 Jahre verteilt werden (§ 82b EStDV).`,
-    tags: ["Werbungskosten", "Steuererklärung", "Anlage V"],
+    question: "Wann muss die Nebenkostenabrechnung vorliegen?",
+    answer:
+      "Die Nebenkostenabrechnung muss dem Mieter spätestens 12 Monate nach Ende des Abrechnungszeitraums zugehen. Wird diese Frist versäumt, kann der Vermieter keine Nachforderungen mehr geltend machen. Ein Guthaben des Mieters muss jedoch auch bei verspäteter Abrechnung ausgezahlt werden.",
   },
   {
-    id: "5",
-    title: "Betriebskostenabrechnung erstellen",
-    category: "betriebskosten",
-    excerpt: "Schritt-für-Schritt-Anleitung zur korrekten Nebenkostenabrechnung.",
-    content: `Die Betriebskostenabrechnung muss innerhalb von 12 Monaten nach Ende des Abrechnungszeitraums erstellt werden (§ 556 Abs. 3 BGB).\n\n**Formelle Anforderungen:**\n1. Angabe des Abrechnungszeitraums\n2. Zusammenstellung der Gesamtkosten\n3. Angabe und Erläuterung des Verteilerschlüssels\n4. Berechnung des Mieteranteils\n5. Abzug der Vorauszahlungen\n\n**Umlageschlüssel:**\n- Wohnfläche (am häufigsten)\n- Personenanzahl\n- Verbrauch (z.B. bei Heizung)\n- Einheitenschlüssel\n\n**Frist:**\nNach Ablauf der 12-Monats-Frist kann der Vermieter keine Nachforderungen mehr stellen, wohl aber ein Guthaben auszahlen.`,
-    tags: ["Betriebskosten", "Nebenkostenabrechnung", "§556"],
+    question: "Was muss ich beim Energieausweis beachten?",
+    answer:
+      "Bei Neuvermietung oder Verkauf ist ein gültiger Energieausweis Pflicht. Es gibt den Verbrauchsausweis (basierend auf tatsächlichem Verbrauch) und den Bedarfsausweis (basierend auf baulichen Eigenschaften). Für Gebäude mit weniger als 5 Wohneinheiten und Bauantrag vor 1977 ist der Bedarfsausweis vorgeschrieben. Der Ausweis ist 10 Jahre gültig.",
   },
   {
-    id: "6",
-    title: "Umlagefähige Betriebskosten nach BetrKV",
-    category: "betriebskosten",
-    excerpt: "Vollständige Liste aller umlagefähigen Betriebskosten nach der Betriebskostenverordnung.",
-    content: `Die Betriebskostenverordnung (BetrKV) definiert 17 umlagefähige Kostenarten:\n\n1. Grundsteuer\n2. Wasserversorgung\n3. Entwässerung\n4. Heizung\n5. Warmwasser\n6. Aufzug\n7. Straßenreinigung\n8. Müllbeseitigung\n9. Gebäudereinigung\n10. Gartenpflege\n11. Beleuchtung (Allgemeinstrom)\n12. Schornsteinreinigung\n13. Versicherungen\n14. Hausmeister\n15. Gemeinschaftsantenne/Kabel\n16. Wäschepflege\n17. Sonstige Betriebskosten\n\n**Nicht umlagefähig:**\n- Verwaltungskosten\n- Instandhaltungsrücklagen\n- Reparaturkosten\n- Bankgebühren`,
-    tags: ["BetrKV", "Umlagefähig", "Kostenarten"],
+    question: "Welche steuerlichen Abschreibungen gibt es bei Vermietung?",
+    answer:
+      "Die lineare AfA für Wohngebäude beträgt 2% pro Jahr (bei Baujahr ab 1925) bzw. 2,5% (vor 1925). Für Neubauten ab 2023 gilt eine degressive AfA von 6% (ab 2025: 5%). Zusätzlich können Erhaltungsaufwendungen sofort abgesetzt oder auf 2-5 Jahre verteilt werden. Modernisierungskosten können unter bestimmten Voraussetzungen als Sonderabschreibung geltend gemacht werden.",
+  },
+];
+
+const EXTERNAL_RESOURCES = [
+  {
+    title: "Deutscher Mieterbund",
+    url: "https://www.mieterbund.de",
+    description: "Informationen und Beratung rund um das Mietrecht.",
   },
   {
-    id: "7",
-    title: "WEG-Verwaltung: Pflichten und Aufgaben",
-    category: "hausverwaltung",
-    excerpt: "Aufgaben der Wohnungseigentumsverwaltung nach dem WEG.",
-    content: `Die WEG-Verwaltung hat nach der Reform 2020 folgende Kernaufgaben:\n\n**Laufende Verwaltung:**\n- Durchführung der Beschlüsse der Eigentümerversammlung\n- Verwaltung der gemeinschaftlichen Gelder\n- Ordnungsmäßige Instandhaltung und Instandsetzung\n- Erstellung des Wirtschaftsplans und der Jahresabrechnung\n\n**Eigentümerversammlung:**\n- Einberufung mindestens einmal jährlich\n- Protokollierung der Beschlüsse\n- Führung der Beschlusssammlung\n\n**Seit WEG-Reform 2020:**\n- Verwaltungsbeirat kann aus einer Person bestehen\n- Online-Teilnahme an Versammlungen möglich\n- Zertifizierter Verwalter ab 2024 vorgeschrieben`,
-    tags: ["WEG", "Verwaltung", "Eigentümer"],
+    title: "Haus & Grund Deutschland",
+    url: "https://www.hausundgrund.de",
+    description: "Verband der privaten Immobilieneigentümer.",
   },
   {
-    id: "8",
-    title: "Häufige Fragen zur Kaution",
-    category: "faq",
-    excerpt: "Antworten auf die häufigsten Fragen rund um die Mietkaution.",
-    content: `**Wie hoch darf die Kaution sein?**\nMaximal 3 Nettokaltmieten (§ 551 BGB).\n\n**Muss der Vermieter die Kaution anlegen?**\nJa, getrennt vom eigenen Vermögen mit üblicher Verzinsung.\n\n**Kann die Kaution in Raten gezahlt werden?**\nJa, in 3 gleichen Monatsraten, die erste zu Beginn des Mietverhältnisses.\n\n**Wann muss die Kaution zurückgezahlt werden?**\nNach Ende des Mietverhältnisses, sobald alle Ansprüche des Vermieters geklärt sind. In der Regel 3-6 Monate, in Ausnahmefällen bis zur nächsten Betriebskostenabrechnung.\n\n**Darf der Vermieter die Kaution für laufende Miete verwenden?**\nNein, nur nach Beendigung des Mietverhältnisses.`,
-    tags: ["Kaution", "FAQ", "§551 BGB"],
+    title: "Bundesministerium der Justiz",
+    url: "https://www.bmj.de",
+    description: "Gesetzestexte und offizielle Informationen zum Mietrecht.",
   },
   {
-    id: "9",
-    title: "Häufige Fragen zur Mieterhöhung",
-    category: "faq",
-    excerpt: "Wann und wie darf die Miete erhöht werden?",
-    content: `**Mieterhöhung auf Vergleichsmiete (§ 558 BGB):**\n- Maximal bis zur ortsüblichen Vergleichsmiete\n- Kappungsgrenze: max. 20% in 3 Jahren (15% in angespannten Märkten)\n- Wartefrist: 15 Monate nach Einzug oder letzter Erhöhung\n\n**Mieterhöhung nach Modernisierung (§ 559 BGB):**\n- 8% der Modernisierungskosten pro Jahr\n- Maximal 3 €/m² in 6 Jahren (2 €/m² bei Mieten unter 7 €/m²)\n\n**Staffelmiete (§ 557a BGB):**\n- Festgelegte Mietsteigerungen in bestimmten Zeitabständen\n- Mindestens 1 Jahr zwischen den Stufen\n\n**Indexmiete (§ 557b BGB):**\n- Anpassung an den Verbraucherpreisindex\n- Höchstens einmal pro Jahr`,
-    tags: ["Mieterhöhung", "Vergleichsmiete", "§558"],
+    title: "Mietspiegel-Portal",
+    url: "https://www.mietspiegel-online.de",
+    description: "Aktuelle Mietspiegel für Städte und Gemeinden.",
   },
 ];
 
 export default function KnowledgeBase() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [expandedArticle, setExpandedArticle] = useState<string | null>(null);
 
-  const filteredArticles = useMemo(() => {
-    return ARTICLES.filter((article) => {
-      // Category filter
-      if (activeCategory !== "all" && article.category !== activeCategory) return false;
+  const filteredCategories = CATEGORIES.filter((cat) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      cat.title.toLowerCase().includes(q) ||
+      cat.description.toLowerCase().includes(q)
+    );
+  });
 
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          article.title.toLowerCase().includes(query) ||
-          article.excerpt.toLowerCase().includes(query) ||
-          article.content.toLowerCase().includes(query) ||
-          article.tags.some((tag) => tag.toLowerCase().includes(query))
-        );
-      }
-
-      return true;
-    });
-  }, [searchQuery, activeCategory]);
-
-  const getCategoryConfig = (categoryId: string) => {
-    return CATEGORIES.find((c) => c.id === categoryId) || CATEGORIES[0];
-  };
+  const filteredFaq = FAQ_ITEMS.filter((faq) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      faq.question.toLowerCase().includes(q) ||
+      faq.answer.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <MainLayout title="Wissensdatenbank" breadcrumbs={[{ label: "Wissensdatenbank" }]}>
       <div className="space-y-6">
         <PageHeader
           title="Wissensdatenbank"
-          subtitle="Finden Sie Antworten zu Mietrecht, Steuern und Hausverwaltung."
+          subtitle="Informationen und Ratgeber rund um die Immobilienverwaltung."
         />
 
-        {/* Search */}
+        {/* Search Bar */}
         <Card>
-          <CardContent className="py-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Artikel durchsuchen (z.B. Kündigungsfrist, AfA, Betriebskosten)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11"
-              />
+          <CardContent className="py-6">
+            <div className="max-w-2xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Wissensdatenbank durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-12 h-12 text-lg"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-[250px_1fr]">
-          {/* Category Sidebar */}
-          <div className="space-y-1">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              const count = cat.id === "all"
-                ? ARTICLES.length
-                : ARTICLES.filter((a) => a.category === cat.id).length;
-
+        {/* Category Cards */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Kategorien
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredCategories.map((category) => {
+              const Icon = category.icon;
               return (
-                <button
-                  key={cat.id}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors",
-                    activeCategory === cat.id
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-muted text-muted-foreground"
-                  )}
-                  onClick={() => setActiveCategory(cat.id)}
+                <Card
+                  key={category.id}
+                  className={`cursor-pointer transition-all hover:shadow-md border ${category.color}`}
                 >
-                  <Icon className={cn("h-4 w-4", activeCategory === cat.id ? "text-primary" : cat.color)} />
-                  <span className="text-sm font-medium flex-1">{cat.label}</span>
-                  <Badge variant="secondary" className="h-5 text-xs">
-                    {count}
-                  </Badge>
-                </button>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="h-12 w-12 rounded-lg bg-white flex items-center justify-center shadow-sm">
+                        <Icon className={`h-6 w-6 ${category.iconColor}`} />
+                      </div>
+                      <Badge variant="outline">
+                        {category.articleCount} Artikel
+                      </Badge>
+                    </div>
+                    <h3 className="font-semibold text-lg mb-1">{category.title}</h3>
+                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                    <Button variant="ghost" size="sm" className="mt-3 -ml-2">
+                      Artikel anzeigen
+                      <ArrowRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
-
-          {/* Articles */}
-          <div className="space-y-4">
-            {filteredArticles.length === 0 ? (
-              <Card>
-                <CardContent className="py-12">
-                  <div className="text-center">
-                    <Search className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-                    <h3 className="font-semibold">Keine Artikel gefunden</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Versuchen Sie einen anderen Suchbegriff oder wählen Sie eine andere Kategorie.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              filteredArticles.map((article) => {
-                const isExpanded = expandedArticle === article.id;
-                const catConfig = getCategoryConfig(article.category);
-                const CatIcon = catConfig.icon;
-
-                return (
-                  <Card key={article.id}>
-                    <CardHeader
-                      className="cursor-pointer hover:bg-muted/30 transition-colors"
-                      onClick={() => setExpandedArticle(isExpanded ? null : article.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="text-xs">
-                              <CatIcon className={cn("h-3 w-3 mr-1", catConfig.color)} />
-                              {catConfig.label}
-                            </Badge>
-                          </div>
-                          <CardTitle className="text-lg">{article.title}</CardTitle>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {article.excerpt}
-                          </p>
-                        </div>
-                        <Button variant="ghost" size="icon" className="shrink-0 ml-2">
-                          {isExpanded ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </CardHeader>
-
-                    {isExpanded && (
-                      <CardContent className="pt-0">
-                        <div className="border-t pt-4">
-                          <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap">
-                            {article.content}
-                          </div>
-                          <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t">
-                            {article.tags.map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant="secondary"
-                                className="text-xs cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSearchQuery(tag);
-                                }}
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                );
-              })
-            )}
-          </div>
+          {filteredCategories.length === 0 && (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground">
+                  Keine Kategorien zu "{searchQuery}" gefunden.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
+
+        {/* FAQ Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              Häufig gestellte Fragen
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {filteredFaq.length === 0 ? (
+              <div className="text-center py-8">
+                <HelpCircle className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground">
+                  Keine FAQ zu "{searchQuery}" gefunden.
+                </p>
+              </div>
+            ) : (
+              <Accordion type="single" collapsible className="w-full">
+                {filteredFaq.map((faq, index) => (
+                  <AccordionItem key={index} value={`faq-${index}`}>
+                    <AccordionTrigger className="text-left">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* External Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5" />
+              Externe Ressourcen
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-2">
+              {EXTERNAL_RESOURCES.map((resource, index) => (
+                <a
+                  key={index}
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                >
+                  <ExternalLink className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium text-primary">{resource.title}</p>
+                    <p className="text-sm text-muted-foreground">{resource.description}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tips Card */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Lightbulb className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">Tipp: KI-Assistent nutzen</h3>
+                <p className="text-sm text-muted-foreground">
+                  Nutzen Sie unseren KI-Assistenten für spezifische Fragen rund um Mietrecht,
+                  Steuern und Immobilienverwaltung. Er kann Ihnen schnelle Antworten auf
+                  komplexe Fragestellungen liefern.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );

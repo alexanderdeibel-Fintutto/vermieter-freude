@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -15,138 +15,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import {
-  Mail,
-  MessageSquare,
-  FileText,
   Send,
-  Clock,
   Users,
   Building2,
-  UserCheck,
+  Mail,
+  FileText,
+  Eye,
   CheckCircle,
-  AlertCircle,
-  Loader2,
-  Calendar,
+  XCircle,
+  Printer,
+  Globe,
+  UserCheck,
+  MessageSquare,
   History,
+  Filter,
 } from "lucide-react";
-import { LucideIcon } from "lucide-react";
-
-type Channel = "email" | "whatsapp" | "letter";
-type RecipientType = "all" | "building" | "custom";
-
-interface Campaign {
-  id: string;
-  name: string;
-  channel: Channel;
-  recipientCount: number;
-  status: "draft" | "scheduled" | "sent" | "failed";
-  sentAt: string | null;
-  openRate: number | null;
-}
-
-const CHANNEL_CONFIG: Record<Channel, { label: string; icon: LucideIcon; color: string }> = {
-  email: { label: "E-Mail", icon: Mail, color: "bg-blue-100 text-blue-800" },
-  whatsapp: { label: "WhatsApp", icon: MessageSquare, color: "bg-green-100 text-green-800" },
-  letter: { label: "Brief", icon: FileText, color: "bg-orange-100 text-orange-800" },
-};
-
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: LucideIcon }> = {
-  draft: { label: "Entwurf", color: "bg-gray-100 text-gray-800", icon: FileText },
-  scheduled: { label: "Geplant", color: "bg-yellow-100 text-yellow-800", icon: Clock },
-  sent: { label: "Gesendet", color: "bg-green-100 text-green-800", icon: CheckCircle },
-  failed: { label: "Fehlgeschlagen", color: "bg-red-100 text-red-800", icon: AlertCircle },
-};
-
-// Mock past campaigns
-const mockCampaigns: Campaign[] = [
-  {
-    id: "1",
-    name: "Nebenkostenabrechnung 2024",
-    channel: "email",
-    recipientCount: 45,
-    status: "sent",
-    sentAt: "2025-03-15T10:00:00Z",
-    openRate: 78,
-  },
-  {
-    id: "2",
-    name: "Wartungsarbeiten Heizung",
-    channel: "email",
-    recipientCount: 12,
-    status: "sent",
-    sentAt: "2025-03-10T14:30:00Z",
-    openRate: 92,
-  },
-  {
-    id: "3",
-    name: "Einladung Hausfest",
-    channel: "whatsapp",
-    recipientCount: 30,
-    status: "sent",
-    sentAt: "2025-02-28T09:00:00Z",
-    openRate: 95,
-  },
-  {
-    id: "4",
-    name: "Mieterhöhung Q2 2025",
-    channel: "letter",
-    recipientCount: 8,
-    status: "scheduled",
-    sentAt: null,
-    openRate: null,
-  },
-  {
-    id: "5",
-    name: "Rauchmelder-Prüfung",
-    channel: "email",
-    recipientCount: 60,
-    status: "draft",
-    sentAt: null,
-    openRate: null,
-  },
-];
 
 export default function BulkMessaging() {
-  const { toast } = useToast();
-  const [channel, setChannel] = useState<Channel>("email");
-  const [recipientType, setRecipientType] = useState<RecipientType>("all");
+  const [recipientMode, setRecipientMode] = useState("all");
+  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState("email");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [selectedBuilding, setSelectedBuilding] = useState<string>("");
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState("");
-  const [isSending, setIsSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const recipientCount = recipientMode === "all" ? 48
+    : recipientMode === "building" && selectedBuilding ? 12
+    : recipientMode === "status" && selectedStatus ? 35
+    : 0;
+
+  const templates = [
+    { id: "mietanpassung", name: "Mietanpassung", category: "Vertrag" },
+    { id: "nebenkostenabrechnung", name: "Nebenkostenabrechnung", category: "Abrechnung" },
+    { id: "wartungsankuendigung", name: "Wartungsankündigung", category: "Instandhaltung" },
+    { id: "allgemeine-info", name: "Allgemeine Information", category: "Allgemein" },
+    { id: "saisonale-hinweise", name: "Saisonale Hinweise", category: "Allgemein" },
+  ];
+
+  const messageHistory = [
+    { id: 1, subject: "Nebenkostenabrechnung 2025", recipients: 48, channel: "Email", status: "sent", date: "10.02.2026", openRate: "82%" },
+    { id: 2, subject: "Wartungsarbeiten Heizung", recipients: 12, channel: "Email", status: "sent", date: "05.02.2026", openRate: "91%" },
+    { id: 3, subject: "Mietanpassung ab April", recipients: 35, channel: "Brief", status: "sent", date: "01.02.2026", openRate: "-" },
+    { id: 4, subject: "Winterdienst Information", recipients: 48, channel: "Portal", status: "sent", date: "15.01.2026", openRate: "67%" },
+    { id: 5, subject: "Rauchmelder-Prüfung", recipients: 24, channel: "Email", status: "failed", date: "10.01.2026", openRate: "-" },
+  ];
+
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    const template = templates.find((t) => t.id === templateId);
+    if (template) {
+      setSubject(template.name);
+      setBody(`Sehr geehrte Mieterinnen und Mieter,\n\nwir möchten Sie hiermit über ${template.name.toLowerCase()} informieren.\n\n[Hier Nachrichtentext einfügen]\n\nMit freundlichen Grüßen\nIhre Hausverwaltung`);
+    }
+  };
 
   const handleSend = () => {
-    if (!subject.trim() || !body.trim()) {
-      toast({
-        title: "Fehler",
-        description: "Bitte füllen Sie Betreff und Nachricht aus",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
-      toast({
-        title: isScheduled ? "Nachricht geplant" : "Nachricht gesendet",
-        description: isScheduled
-          ? "Die Nachricht wird zum geplanten Zeitpunkt versendet"
-          : "Die Nachricht wurde erfolgreich an alle Empfänger gesendet",
-      });
-      setSubject("");
-      setBody("");
-    }, 2000);
+    console.log("Sending bulk message", {
+      recipientMode,
+      selectedBuilding,
+      selectedStatus,
+      channel: selectedChannel,
+      subject,
+      body,
+      recipientCount,
+    });
   };
 
   return (
@@ -154,263 +88,342 @@ export default function BulkMessaging() {
       <div className="space-y-6">
         <PageHeader
           title="Massenversand"
-          subtitle="Nachrichten an mehrere Empfänger gleichzeitig senden"
+          subtitle="Senden Sie Nachrichten an mehrere Mieter gleichzeitig"
           breadcrumbs={[
             { label: "Kommunikation", href: "/kommunikation" },
             { label: "Massenversand" },
           ]}
         />
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          {/* Message Composer */}
-          <div className="space-y-4">
-            {/* Channel Selection */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Kanal auswählen</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-3">
-                  {(Object.entries(CHANNEL_CONFIG) as [Channel, typeof CHANNEL_CONFIG.email][]).map(
-                    ([key, cfg]) => {
-                      const Icon = cfg.icon;
-                      return (
-                        <Button
-                          key={key}
-                          variant={channel === key ? "default" : "outline"}
-                          className="h-auto py-4 flex-col gap-2"
-                          onClick={() => setChannel(key)}
-                        >
-                          <Icon className="h-5 w-5" />
-                          <span className="text-sm">{cfg.label}</span>
-                        </Button>
-                      );
-                    }
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left Column: Compose */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Recipient Selection */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Empfänger</CardTitle>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Empfänger auswählen
+                  {recipientCount > 0 && (
+                    <Badge>{recipientCount} Empfänger</Badge>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-3">
-                  <Button
-                    variant={recipientType === "all" ? "default" : "outline"}
-                    className="h-auto py-3 flex-col gap-1"
-                    onClick={() => setRecipientType("all")}
+                  <div
+                    className={`flex flex-col items-center gap-2 p-4 border rounded-lg cursor-pointer transition-colors ${
+                      recipientMode === "all"
+                        ? "border-primary bg-primary/5"
+                        : "hover:border-muted-foreground/30"
+                    }`}
+                    onClick={() => setRecipientMode("all")}
                   >
-                    <Users className="h-4 w-4" />
-                    <span className="text-xs">Alle Mieter</span>
-                  </Button>
-                  <Button
-                    variant={recipientType === "building" ? "default" : "outline"}
-                    className="h-auto py-3 flex-col gap-1"
-                    onClick={() => setRecipientType("building")}
+                    <Users className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">Alle Mieter</span>
+                    <span className="text-xs text-muted-foreground">48 Mieter</span>
+                  </div>
+                  <div
+                    className={`flex flex-col items-center gap-2 p-4 border rounded-lg cursor-pointer transition-colors ${
+                      recipientMode === "building"
+                        ? "border-primary bg-primary/5"
+                        : "hover:border-muted-foreground/30"
+                    }`}
+                    onClick={() => setRecipientMode("building")}
                   >
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-xs">Nach Gebäude</span>
-                  </Button>
-                  <Button
-                    variant={recipientType === "custom" ? "default" : "outline"}
-                    className="h-auto py-3 flex-col gap-1"
-                    onClick={() => setRecipientType("custom")}
+                    <Building2 className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">Nach Gebäude</span>
+                    <span className="text-xs text-muted-foreground">Filtern</span>
+                  </div>
+                  <div
+                    className={`flex flex-col items-center gap-2 p-4 border rounded-lg cursor-pointer transition-colors ${
+                      recipientMode === "status"
+                        ? "border-primary bg-primary/5"
+                        : "hover:border-muted-foreground/30"
+                    }`}
+                    onClick={() => setRecipientMode("status")}
                   >
-                    <UserCheck className="h-4 w-4" />
-                    <span className="text-xs">Benutzerdefiniert</span>
-                  </Button>
+                    <Filter className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">Nach Status</span>
+                    <span className="text-xs text-muted-foreground">Filtern</span>
+                  </div>
                 </div>
 
-                {recipientType === "building" && (
+                {recipientMode === "building" && (
                   <Select value={selectedBuilding} onValueChange={setSelectedBuilding}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Gebäude auswählen" />
+                      <SelectValue placeholder="Gebäude auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="building-1">Hauptstraße 1</SelectItem>
-                      <SelectItem value="building-2">Parkweg 5</SelectItem>
-                      <SelectItem value="building-3">Seestraße 12</SelectItem>
+                      <SelectItem value="hauptstrasse">Hauptstraße 1 (12 Mieter)</SelectItem>
+                      <SelectItem value="parkweg">Parkweg 5 (8 Mieter)</SelectItem>
+                      <SelectItem value="seestrasse">Seestraße 12 (16 Mieter)</SelectItem>
+                      <SelectItem value="bergallee">Bergallee 3 (6 Mieter)</SelectItem>
+                      <SelectItem value="waldring">Waldring 7 (6 Mieter)</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
 
-                {recipientType === "custom" && (
-                  <div className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-lg">
-                    <UserCheck className="h-4 w-4 inline mr-2" />
-                    Wählen Sie einzelne Mieter aus der Mieterliste aus
-                  </div>
+                {recipientMode === "status" && (
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Aktive Mieter (35)</SelectItem>
+                      <SelectItem value="overdue">Mit Zahlungsrückstand (8)</SelectItem>
+                      <SelectItem value="expiring">Vertrag läuft aus (5)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               </CardContent>
             </Card>
 
-            {/* Message Content */}
+            {/* Template & Channel Selection */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Nachricht</CardTitle>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Vorlage und Kanal
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Vorlage</Label>
+                    <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Vorlage auswählen (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            <span className="flex items-center gap-2">
+                              {t.name}
+                              <Badge variant="outline" className="text-xs">{t.category}</Badge>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Versandkanal</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { value: "email", label: "Email", icon: Mail },
+                        { value: "brief", label: "Brief", icon: Printer },
+                        { value: "portal", label: "Portal", icon: Globe },
+                      ].map((channel) => (
+                        <Button
+                          key={channel.value}
+                          variant={selectedChannel === channel.value ? "default" : "outline"}
+                          className="flex items-center gap-1"
+                          onClick={() => setSelectedChannel(channel.value)}
+                        >
+                          <channel.icon className="h-4 w-4" />
+                          {channel.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Message Composer */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Nachricht verfassen
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Betreff</Label>
                   <Input
-                    placeholder="Betreff der Nachricht"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Betreff der Nachricht..."
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Nachricht</Label>
                   <Textarea
-                    placeholder="Ihre Nachricht an die Mieter..."
-                    rows={8}
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
+                    placeholder="Nachrichtentext eingeben..."
+                    className="min-h-[200px]"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Platzhalter: {"{{vorname}}"}, {"{{nachname}}"}, {"{{einheit}}"}, {"{{gebaeude}}"}
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
+                <p className="text-xs text-muted-foreground">
+                  Verfügbare Platzhalter: {"{{vorname}}"}, {"{{nachname}}"}, {"{{einheit}}"}, {"{{gebaeude}}"}, {"{{miete}}"}
+                </p>
 
-            {/* Schedule & Send */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant={isScheduled ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setIsScheduled(!isScheduled)}
-                    >
-                      <Clock className="h-4 w-4 mr-2" />
-                      Planen
-                    </Button>
-                    {isScheduled && (
-                      <Input
-                        type="datetime-local"
-                        value={scheduleDate}
-                        onChange={(e) => setScheduleDate(e.target.value)}
-                        className="w-auto"
-                      />
-                    )}
-                  </div>
-                  <Button onClick={handleSend} disabled={isSending}>
-                    {isSending ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4 mr-2" />
-                    )}
-                    {isScheduled ? "Nachricht planen" : "Jetzt senden"}
+                <div className="flex items-center justify-between pt-2">
+                  <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    {showPreview ? "Vorschau schließen" : "Vorschau"}
+                  </Button>
+                  <Button
+                    onClick={handleSend}
+                    disabled={!subject.trim() || !body.trim() || recipientCount === 0}
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    An {recipientCount} Empfänger senden
                   </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Side: Campaign History */}
-          <div className="space-y-4">
+          {/* Right Column: Preview & Info */}
+          <div className="space-y-6">
+            {/* Preview Card */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <History className="h-4 w-4" />
-                  Vergangene Kampagnen
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Eye className="h-4 w-4" />
+                  Vorschau
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {subject || body ? (
+                  <div className="space-y-4">
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-xs text-muted-foreground">An:</p>
+                      <p className="text-sm font-medium">
+                        {recipientMode === "all"
+                          ? "Alle Mieter (48)"
+                          : recipientMode === "building"
+                          ? `Mieter in ${selectedBuilding || "..."}`
+                          : `Mieter mit Status: ${selectedStatus || "..."}`}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Kanal: {selectedChannel === "email" ? "E-Mail" : selectedChannel === "brief" ? "Brief" : "Portal"}
+                      </p>
+                    </div>
+                    <div className="border-t pt-4">
+                      <p className="text-xs text-muted-foreground mb-1">Betreff:</p>
+                      <p className="font-medium text-sm mb-3">{subject || "(kein Betreff)"}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Nachricht:</p>
+                      <div className="text-sm whitespace-pre-wrap text-muted-foreground">
+                        {body || "(kein Inhalt)"}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Mail className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Verfassen Sie eine Nachricht</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Send Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <UserCheck className="h-4 w-4" />
+                  Zusammenfassung
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockCampaigns.map((campaign) => {
-                    const channelCfg = CHANNEL_CONFIG[campaign.channel];
-                    const statusCfg = STATUS_CONFIG[campaign.status];
-                    const ChannelIcon = channelCfg.icon;
-                    return (
-                      <div
-                        key={campaign.id}
-                        className="p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <p className="text-sm font-medium leading-tight">
-                            {campaign.name}
-                          </p>
-                          <Badge className={`${statusCfg.color} text-[10px] shrink-0 ml-2`}>
-                            {statusCfg.label}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <ChannelIcon className="h-3 w-3" />
-                            {channelCfg.label}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {campaign.recipientCount}
-                          </span>
-                          {campaign.openRate !== null && (
-                            <span className="flex items-center gap-1">
-                              <Mail className="h-3 w-3" />
-                              {campaign.openRate}% geöffnet
-                            </span>
-                          )}
-                        </div>
-                        {campaign.sentAt && (
-                          <p className="text-[10px] text-muted-foreground mt-1">
-                            {new Date(campaign.sentAt).toLocaleDateString("de-DE", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Statistiken</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Gesendet gesamt</span>
+                    <span className="text-sm text-muted-foreground">Empfänger</span>
+                    <span className="text-sm font-medium">{recipientCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Kanal</span>
+                    <Badge variant="outline">
+                      {selectedChannel === "email" ? "E-Mail" : selectedChannel === "brief" ? "Brief" : "Portal"}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Vorlage</span>
                     <span className="text-sm font-medium">
-                      {mockCampaigns
-                        .filter((c) => c.status === "sent")
-                        .reduce((sum, c) => sum + c.recipientCount, 0)}
+                      {selectedTemplate
+                        ? templates.find((t) => t.id === selectedTemplate)?.name
+                        : "Keine"}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Durchschnittl. Öffnungsrate</span>
-                    <span className="text-sm font-medium">
-                      {Math.round(
-                        mockCampaigns
-                          .filter((c) => c.openRate !== null)
-                          .reduce((sum, c) => sum + (c.openRate || 0), 0) /
-                          Math.max(
-                            1,
-                            mockCampaigns.filter((c) => c.openRate !== null).length
-                          )
-                      )}
-                      %
+                    <span className="text-sm text-muted-foreground">Betreff</span>
+                    <span className="text-sm font-medium truncate max-w-[150px]">
+                      {subject || "-"}
                     </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Kampagnen gesamt</span>
-                    <span className="text-sm font-medium">{mockCampaigns.length}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Message History */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Versandverlauf
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Betreff</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Empfänger</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Kanal</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Öffnungsrate</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Datum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {messageHistory.map((msg) => (
+                    <tr key={msg.id} className="border-b last:border-0">
+                      <td className="py-3 px-4">
+                        <span className="text-sm font-medium">{msg.subject}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm">{msg.recipients}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <Badge variant="outline">{msg.channel}</Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        {msg.status === "sent" ? (
+                          <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Gesendet
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Fehlgeschlagen
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm">{msg.openRate}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm text-muted-foreground">{msg.date}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );
