@@ -1,9 +1,9 @@
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  FileText, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  FileText,
+  MessageSquare,
   Settings,
   LogOut,
   ChevronDown,
@@ -13,20 +13,30 @@ import {
   Gauge,
   CheckSquare,
   DoorOpen,
-   ChevronRight,
-   Mail,
-   Calculator,
-   PenTool,
-   MessageCircle,
-   CalendarDays,
-   TrendingUp,
-   Leaf,
-   Home,
-   Zap,
-   HelpCircle,
-   History,
-   Shield,
-   Sparkles,
+  ChevronRight,
+  Mail,
+  Calculator,
+  PenTool,
+  MessageCircle,
+  CalendarDays,
+  TrendingUp,
+  Leaf,
+  Home,
+  Zap,
+  HelpCircle,
+  History,
+  Shield,
+  Sparkles,
+  BarChart3,
+  Database,
+  ShieldCheck,
+  UserCog,
+  BookOpen,
+  FileBarChart,
+  ClipboardCheck,
+  Wallet,
+  Scale,
+  Send,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,58 +72,81 @@ import vermietifyLogo from "@/assets/vermietify-logo.svg";
 
 const navigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { 
-    title: "Immobilien", 
+  {
+    title: "Immobilien",
     icon: Building2,
     subItems: [
       { title: "Gebäude", url: "/properties" },
       { title: "Einheiten", url: "/einheiten" },
+      { title: "Eigentümer", url: "/eigentuemer" },
       { title: "Betriebskosten", url: "/betriebskosten" },
       { title: "Zähler", url: "/zaehler" },
     ]
   },
-  { 
-    title: "Mieter", 
+  {
+    title: "Mieter",
     icon: Users,
     subItems: [
       { title: "Übersicht", url: "/tenants" },
       { title: "Mietangebote", url: "/angebote" },
       { title: "Verträge", url: "/vertraege" },
+      { title: "Kündigungen", url: "/kuendigungen" },
       { title: "Unterschriften", url: "/unterschriften" },
       { title: "Mietanpassungen", url: "/miete/anpassungen" },
       { title: "Inserate", url: "/inserate" },
       { title: "KdU-Richtwerte", url: "/kdu-richtwerte" },
     ]
   },
-  { 
-    title: "Finanzen", 
+  {
+    title: "Finanzen",
     icon: CreditCard,
     subItems: [
+      { title: "Übersicht", url: "/finanzen" },
       { title: "Zahlungen", url: "/zahlungen" },
+      { title: "Rechnungen", url: "/rechnungen" },
+      { title: "Budget", url: "/budget" },
       { title: "Banking", url: "/banking" },
-      { title: "Transaktionen", url: "/banking/transaktionen" },
-      { title: "Konto verbinden", url: "/banking/verbinden" },
-      { title: "Zuordnungsregeln", url: "/banking/regeln" },
+      { title: "Portfolio", url: "/portfolio" },
+      { title: "Vermögen", url: "/vermoegen" },
+    ]
+  },
+  {
+    title: "Steuern",
+    icon: Receipt,
+    subItems: [
+      { title: "Dashboard", url: "/steuern" },
+      { title: "Erklärungen", url: "/steuern/erklaerungen" },
+      { title: "Absetzungen", url: "/steuern/absetzungen" },
+      { title: "Fristen", url: "/steuern/fristen" },
+      { title: "Szenarien", url: "/steuern/szenarien" },
+      { title: "Optimierung", url: "/steuern/optimierung" },
+      { title: "Formulare", url: "/steuern/formulare" },
+      { title: "ELSTER", url: "/steuern/elster" },
+      { title: "DATEV", url: "/steuern/datev" },
+      { title: "Compliance", url: "/steuern/compliance" },
+      { title: "Export", url: "/steuern/export" },
+    ]
+  },
+  {
+    title: "Rechner",
+    icon: Calculator,
+    subItems: [
+      { title: "Alle Rechner", url: "/rechner" },
+      { title: "AfA-Rechner", url: "/rechner/afa" },
+      { title: "Kaufpreis", url: "/rechner/kaufpreis" },
+      { title: "Rendite", url: "/rechner/rendite" },
+      { title: "Tilgung", url: "/rechner/tilgung" },
+      { title: "Cashflow", url: "/rechner/cashflow" },
+      { title: "Wertentwicklung", url: "/rechner/wertentwicklung" },
+      { title: "CO₂-Kosten", url: "/co2" },
     ]
   },
   { title: "Kalender", url: "/kalender", icon: CalendarDays },
   { title: "Aufgaben", url: "/aufgaben", icon: CheckSquare },
   { title: "Automatisierung", url: "/automatisierung", icon: Zap },
-  { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
-  { 
-    title: "Rechner & Tools", 
-    icon: Calculator,
-    subItems: [
-      { title: "Alle Tools", url: "/portal" },
-      { title: "CO₂-Kosten", url: "/co2" },
-    ]
-  },
-  
-  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle },
   { title: "Dokumente", url: "/documents", icon: FileText },
-  { title: "Steuern", url: "/taxes", icon: Receipt },
-  { 
-    title: "Kommunikation", 
+  {
+    title: "Kommunikation",
     icon: MessageSquare,
     subItems: [
       { title: "E-Mail verfassen", url: "/kommunikation/senden" },
@@ -121,8 +154,45 @@ const navigationItems = [
       { title: "E-Mail-Verlauf", url: "/kommunikation/verlauf" },
       { title: "E-Mail-Eingang", url: "/kommunikation/eingang" },
       { title: "Empfangsadresse", url: "/kommunikation/empfang" },
+      { title: "WhatsApp", url: "/whatsapp" },
+      { title: "Massen-Nachrichten", url: "/kommunikation/bulk" },
+      { title: "Analytics", url: "/kommunikation/analytics" },
     ]
   },
+  {
+    title: "Berichte",
+    icon: BarChart3,
+    subItems: [
+      { title: "Report-Center", url: "/berichte" },
+      { title: "Report-Builder", url: "/berichte/builder" },
+      { title: "Analytics", url: "/berichte/analytics" },
+    ]
+  },
+  {
+    title: "Compliance",
+    icon: ShieldCheck,
+    subItems: [
+      { title: "Dashboard", url: "/compliance" },
+      { title: "Checkliste", url: "/compliance/checkliste" },
+      { title: "Audit-Bereitschaft", url: "/compliance/audit" },
+    ]
+  },
+  {
+    title: "Daten",
+    icon: Database,
+    subItems: [
+      { title: "Import/Export", url: "/daten" },
+      { title: "Universal-Import", url: "/daten/import" },
+    ]
+  },
+  {
+    title: "Versicherungen",
+    url: "/versicherungen",
+    icon: Shield,
+  },
+  { title: "Energie", url: "/energie", icon: Leaf },
+  { title: "Wissen", url: "/wissen", icon: BookOpen },
+  { title: "Empfehlungen", url: "/empfehlungen", icon: Sparkles },
 ];
 
 export function AppSidebar() {
@@ -145,7 +215,7 @@ export function AppSidebar() {
   };
 
   const isActive = (url: string) => location.pathname === url;
-  const isSubmenuActive = (subItems: { url: string }[]) => 
+  const isSubmenuActive = (subItems: { url: string }[]) =>
     subItems.some(item => location.pathname === item.url || location.pathname.startsWith(item.url.split('#')[0]));
 
   return (
@@ -202,11 +272,11 @@ export function AppSidebar() {
                     </Collapsible>
                   );
                 }
-                
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink 
+                      <NavLink
                         to={item.url}
                         className="flex items-center gap-3"
                       >

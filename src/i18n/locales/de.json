@@ -170,5 +170,160 @@
       "tenant": "Erster Mieter",
       "complete": "Fertig"
     }
+  },
+  "tax": {
+    "title": "Steuern",
+    "dashboard": "Steuer-Dashboard",
+    "declarations": "Steuererklärungen",
+    "deductions": "Absetzungen",
+    "deadlines": "Fristen",
+    "scenarios": "Szenarien",
+    "optimization": "Optimierung",
+    "formLibrary": "Formularbibliothek",
+    "compliance": "Compliance",
+    "export": "Export",
+    "datev": "DATEV-Sync",
+    "crossBorder": "Grenzüberschreitend",
+    "anlageV": "Anlage V",
+    "anlageKAP": "Anlage KAP",
+    "anlageSO": "Anlage SO",
+    "countries": {
+      "DE": "Deutschland",
+      "AT": "Österreich",
+      "CH": "Schweiz"
+    },
+    "status": {
+      "not_started": "Nicht begonnen",
+      "in_progress": "In Bearbeitung",
+      "ready": "Bereit",
+      "filed": "Eingereicht",
+      "accepted": "Akzeptiert",
+      "rejected": "Abgelehnt"
+    },
+    "categories": {
+      "afa": "Abschreibung (AfA)",
+      "maintenance": "Instandhaltung",
+      "insurance": "Versicherungen",
+      "interest": "Schuldzinsen",
+      "property_tax": "Grundsteuer",
+      "management": "Verwaltungskosten",
+      "travel": "Fahrtkosten",
+      "office": "Arbeitszimmer",
+      "legal": "Rechts- & Beratungskosten",
+      "advertising": "Vermietungsinserate",
+      "other": "Sonstiges"
+    }
+  },
+  "finance": {
+    "title": "Finanzen",
+    "dashboard": "Finanz-Dashboard",
+    "invoices": "Rechnungen",
+    "newInvoice": "Neue Rechnung",
+    "budget": "Budget",
+    "portfolio": "Portfolio",
+    "wealth": "Vermögen",
+    "income": "Einnahmen",
+    "expenses": "Ausgaben",
+    "balance": "Saldo",
+    "cashflow": "Cashflow"
+  },
+  "calculators": {
+    "title": "Rechner",
+    "hub": "Alle Rechner",
+    "afa": "AfA-Rechner",
+    "kaufpreis": "Kaufpreis-Rechner",
+    "rendite": "Rendite-Rechner",
+    "tilgung": "Tilgungs-Rechner",
+    "cashflow": "Cashflow-Rechner",
+    "wertentwicklung": "Wertentwicklungs-Rechner"
+  },
+  "admin": {
+    "title": "Administration",
+    "roles": "Rollen",
+    "permissions": "Berechtigungen",
+    "modules": "Module",
+    "users": "Benutzer",
+    "organizations": "Organisationen"
+  },
+  "compliance": {
+    "title": "Compliance",
+    "dashboard": "Compliance-Dashboard",
+    "checklist": "Checkliste",
+    "auditReadiness": "Audit-Bereitschaft",
+    "score": "Compliance-Score",
+    "categories": {
+      "dsgvo": "Datenschutz (DSGVO)",
+      "tax": "Steuern",
+      "building": "Gebäudesicherheit",
+      "contract": "Vertragsrecht",
+      "energy": "Energie",
+      "fire_safety": "Brandschutz",
+      "accessibility": "Barrierefreiheit"
+    }
+  },
+  "reports": {
+    "title": "Berichte",
+    "hub": "Berichts-Center",
+    "builder": "Report-Builder",
+    "analytics": "Erweiterte Analytics",
+    "scheduled": "Geplante Berichte"
+  },
+  "communication": {
+    "title": "Kommunikation",
+    "bulk": "Massen-Nachrichten",
+    "analytics": "Kommunikations-Analytics",
+    "templates": "Vorlagen"
+  },
+  "data": {
+    "title": "Daten",
+    "importExport": "Import/Export",
+    "universalImport": "Universal-Import",
+    "syncConnections": "Sync-Verbindungen"
+  },
+  "insurance": {
+    "title": "Versicherungen",
+    "dashboard": "Versicherungs-Dashboard",
+    "claims": "Schadensfälle",
+    "types": {
+      "building": "Gebäudeversicherung",
+      "liability": "Haftpflicht",
+      "fire": "Feuerversicherung",
+      "water": "Leitungswasser",
+      "glass": "Glasversicherung",
+      "rent_loss": "Mietausfall",
+      "legal": "Rechtsschutz",
+      "other": "Sonstige"
+    }
+  },
+  "energy": {
+    "title": "Energie",
+    "dashboard": "Energie-Dashboard",
+    "passports": "Energieausweise"
+  },
+  "owners": {
+    "title": "Eigentümer",
+    "list": "Eigentümerliste",
+    "detail": "Eigentümer-Detail"
+  },
+  "terminations": {
+    "title": "Kündigungen",
+    "list": "Kündigungsliste",
+    "wizard": "Neue Kündigung",
+    "types": {
+      "tenant": "Mieter-Kündigung",
+      "landlord": "Vermieter-Kündigung",
+      "mutual": "Einvernehmlich"
+    }
+  },
+  "knowledge": {
+    "title": "Wissensdatenbank",
+    "search": "Wissen durchsuchen"
+  },
+  "tenantPortal": {
+    "community": "Community",
+    "selfService": "Self-Service",
+    "messages": "Nachrichten",
+    "satisfaction": "Zufriedenheit",
+    "paymentHistory": "Zahlungsverlauf"
   }
 }
