@@ -7,11 +7,12 @@ Monorepo for all Fintutto ecosystem apps — property management, tenant portals
 ```
 fintutto-monorepo/
 ├── apps/
-│   └── vermietify/          # Property management dashboard
+│   ├── vermietify/          # Property management dashboard
+│   ├── financial-compass/   # Financial planning & tax tools
+│   ├── bescheidboxer/       # Bürgergeld/Sozialrecht KI-Assistent
 │   # Future apps:
 │   # ├── mieterportal/      # Tenant self-service portal
 │   # ├── hausmeister/       # Caretaker management
-│   # ├── bescheidboxer/     # Document processing
 │   # ├── ablesung/          # Meter readings
 │   # └── admin/             # Admin dashboard
 ├── packages/

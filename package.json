@@ -10,7 +10,9 @@
     "test": "turbo run test",
     "type-check": "turbo run type-check",
     "dev:vermietify": "turbo run dev --filter=@fintutto/vermietify",
-    "build:vermietify": "turbo run build --filter=@fintutto/vermietify"
+    "build:vermietify": "turbo run build --filter=@fintutto/vermietify",
+    "dev:bescheidboxer": "turbo run dev --filter=@fintutto/bescheidboxer",
+    "build:bescheidboxer": "turbo run build --filter=@fintutto/bescheidboxer"
   },
   "devDependencies": {
     "turbo": "^2.5.0"
