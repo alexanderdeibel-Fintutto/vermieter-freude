@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/**']
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # PFLICHT: Regressionstests müssen grün sein bevor gebaut wird
+  regression-guard:
+    name: Regression Guard (Plan-Limits, Validierung, Subscription)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Run Regression Tests
+        run: ./node_modules/.bin/vitest run src/test/regression/ --reporter=verbose
+
+  # Build läuft nur wenn Regressionstests grün sind
+  build:
+    needs: regression-guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: TypeScript check
+        run: npx tsc --noEmit
+        continue-on-error: true
+      - name: Build
+        run: npm run build
